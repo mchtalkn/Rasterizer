@@ -1,2 +1,0 @@
-﻿AUX_SOURCE_DIRECTORY("." GIVEN_FILES) 
-add_library(code_base SHARED ${GIVEN_FILES})
