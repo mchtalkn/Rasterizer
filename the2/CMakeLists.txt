@@ -12,4 +12,4 @@ project ("the2")
 
 File(GLOB GIVEN_FILES "*.h" "*.cpp") 
 
-add_executable(rasterizer ${GIVEN_FILES})
+add_executable(rasterizer ${GIVEN_FILES} "CameraHandler.h" "CameraHandler.cpp" "GeneratedMesh.h" "GeneratedMesh.cpp"  "Transformation.h" "Transformation.cpp")
