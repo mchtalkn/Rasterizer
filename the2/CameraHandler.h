@@ -14,7 +14,7 @@ class CameraHandler
 	vector<vector<Color>> image;
 	vector<GeneratedMesh> generated_meshes; //meshes after transformations and etc.
 	float xmin, xmax, ymin, ymax, zmin, zmax; // should be set after generating perspective/ortoghraphic
-	GeneratedMesh& apply_modelling_transformation(GeneratedMesh& m); // applies given modelling transformation mesh
+	GeneratedMesh& apply_modeling_transformation(GeneratedMesh& m); // applies given modelling transformation mesh
 	void generate_orthographic_matrix(); //calculates and sets orthographic transformation matrix
 	void generate_perspective_matrix(); //calculates and sets perspective transformation matrix
 	GeneratedMesh& apply_viewing_transformations(GeneratedMesh& m); // applies viewing transformations to mesh, do not divide last term
