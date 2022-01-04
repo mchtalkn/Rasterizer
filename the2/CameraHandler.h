@@ -9,15 +9,15 @@ class CameraHandler
 	Scene& scene;
 	Matrix4 orthographic;
 	Matrix4 perspective;
-	vector<GeneratedMesh> generated_meshes; //meshes after transformations and etc.
 	vector<vector<Color>> image;
-	GeneratedMesh generate_mesh(Mesh& m); // primitive assembly 
-	Mesh& apply_modelling_transformation(Mesh& m); // applies given modelling transformation mesh
+	vector<GeneratedMesh> generated_meshes; //meshes after transformations and etc.
+	GeneratedMesh& apply_modelling_transformation(GeneratedMesh& m); // applies given modelling transformation mesh
 	void generate_orthographic_matrix(); //calculates and sets orthographic transformation matrix
 	void generate_perspective_matrix(); //calculates and sets perspective transformation matrix
-	Mesh& apply_viewing_transformations(Mesh& m); // applies viewing transformations to mesh
-	Mesh& apply_culling(Mesh& m); // applies selected culling algorithm to mesh
-	Mesh& apply_clipping(Mesh& m); // applies selected clipping to mesh
+	GeneratedMesh& apply_viewing_transformations(GeneratedMesh& m); // applies viewing transformations to mesh, do not divide last term
+	GeneratedMesh& apply_culling(GeneratedMesh& m); // applies selected culling algorithm to mesh
+	GeneratedMesh& apply_clipping(GeneratedMesh& m); // applies selected clipping to mesh
+	void render(GeneratedMesh& m);
 	CameraHandler(Camera& camera, Scene& scene);
 	//TODO: transformation functions, concatanetion of transformations
 };

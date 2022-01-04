@@ -1,38 +1,43 @@
 #include "CameraHandler.h"
 
-GeneratedMesh CameraHandler::generate_mesh(Mesh& m)
+GeneratedMesh& CameraHandler::apply_modelling_transformation(GeneratedMesh& m)
 {
-	return GeneratedMesh();
-}
-
-Mesh& CameraHandler::apply_modelling_transformation(Mesh& m)
-{
-	// TODO: insert return statement here
+	// TODO:
 	return m;
 }
 
 void CameraHandler::generate_orthographic_matrix()
 {
+	// TODO:
 }
 
 void CameraHandler::generate_perspective_matrix()
 {
+	// TODO:
 }
 
-Mesh& CameraHandler::apply_viewing_transformations(Mesh& m)
+GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
 {
-	// TODO: insert return statement here
+	// TODO:
 	return m;
 }
 
-Mesh& CameraHandler::apply_culling(Mesh& m)
+GeneratedMesh& CameraHandler::apply_culling(GeneratedMesh& m)
 {
-	// TODO: insert return statement here
+	// TODO:
 	return m;
 }
 
-Mesh& CameraHandler::apply_clipping(Mesh& m)
+GeneratedMesh& CameraHandler::apply_clipping(GeneratedMesh& m)
 {
-	// TODO: insert return statement here
+	// TODO:
 	return m;
+}
+
+void CameraHandler::render(GeneratedMesh& m)
+{
+}
+
+CameraHandler::CameraHandler(Camera& camera_, Scene& scene_):camera(camera_),scene(scene_)
+{
 }
