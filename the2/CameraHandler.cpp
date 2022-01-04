@@ -11,7 +11,14 @@ GeneratedMesh& CameraHandler::apply_modeling_transformation(GeneratedMesh& m)
 
 void CameraHandler::generate_orthographic_matrix()
 {
-	// TODO:
+	double r = this->camera.right;
+    double l = this->camera.left;
+    double t = this->camera.top;
+    double b = this->camera.bottom;
+    double f = this->camera.far;
+    double n = this->camera.near;
+    double val[4][4] = {[2/(r-l), 0, 0,  -1*(r+l)/(r-l)], [ 0, 2/(t-b), 0, -1*(t+b)/(t-b)], [0,0, -2/(f-n), -(f+n)/(f-n)], [ 0,0,0,1]}
+    this->orthographic =  Matrix4(val);
 }
 
 void CameraHandler::generate_perspective_matrix()
