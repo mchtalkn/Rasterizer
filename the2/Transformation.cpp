@@ -2,6 +2,8 @@
 
 Transformation::Transformation(const Scaling& s)
 {
+    double val[4][4] = {[s.sx, 0 , 0 , 0],[0, s.sy , 0 , 0],[0, 0 , s.sz , 0],[0, 0 , 0 , 1] };
+    this->matrix =  Matrix4(val);
 }
 
 Transformation::Transformation(const Rotation& r)
