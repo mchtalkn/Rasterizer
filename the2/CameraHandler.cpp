@@ -26,7 +26,39 @@ void CameraHandler::generate_perspective_matrix()
 
 GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
 {
-	// TODO:
+    generate_orthographic_matrix();
+    generate_perspective_matrix();
+	this->viewingTrans = multiplyMatrixWithMatrix( this->orthographic, this->perspective);
+
+	// this->viewingTrans * vec4f
+	for (int i=0; i< m.generated_triangles.size() ; i++){
+	    for (int j=0 ; j<3; j++){
+            m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(this->viewingTrans, m.generated_triangles[i].vertices[j]);
+            if(m.generated_triangles[i].vertices[j].t != 1){
+                m.generated_triangles[i].vertices[j].x= m.generated_triangles[i].vertices[j].x/m.generated_triangles[i].vertices[j].t;
+                m.generated_triangles[i].vertices[j].y= m.generated_triangles[i].vertices[j].y/m.generated_triangles[i].vertices[j].t;
+                m.generated_triangles[i].vertices[j].z= m.generated_triangles[i].vertices[j].z/m.generated_triangles[i].vertices[j].t;
+                m.generated_triangles[i].vertices[j].t=1;
+            }
+        }
+	}
+    for (int i=0; i< m.generated_lines.size() ; i++){
+        for (int j=0 ; j<3; j++){
+            m.generated_lines[i].vertices[j] = multiplyMatrixWithVec4(this->viewingTrans, m.generated_lines[i].vertices[j]);
+            if(m.generated_lines[i].vertices[j].t != 1){
+                m.generated_lines[i].vertices[j].x= m.generated_lines[i].vertices[j].x/m.generated_lines[i].vertices[j].t;
+                m.generated_lines[i].vertices[j].y= m.generated_lines[i].vertices[j].y/m.generated_lines[i].vertices[j].t;
+                m.generated_lines[i].vertices[j].z= m.generated_lines[i].vertices[j].z/m.generated_lines[i].vertices[j].t;
+                m.generated_lines[i].vertices[j].t=1;
+            }
+        }
+    }
+
+    // perspective divide
+    for(int i=0; i<4; i++){
+        this->viewingTrans.val[i][j]
+    }
+
 	return m;
 }
 
