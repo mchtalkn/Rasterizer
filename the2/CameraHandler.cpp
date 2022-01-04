@@ -1,6 +1,6 @@
 #include "CameraHandler.h"
 
-GeneratedMesh& CameraHandler::apply_modelling_transformation(GeneratedMesh& m)
+GeneratedMesh& CameraHandler::apply_modeling_transformation(GeneratedMesh& m)
 {
 	// TODO:
 	return m;
