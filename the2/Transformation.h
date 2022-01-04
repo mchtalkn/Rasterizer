@@ -6,6 +6,7 @@
 #include "Mesh.h"
 #include "Vec4.h"
 #include "GeneratedMesh.h"
+#include "Helpers.h"
 class Transformation
 {
 	Matrix4 matrix;
