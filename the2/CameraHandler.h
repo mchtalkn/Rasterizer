@@ -17,7 +17,10 @@ class CameraHandler
 	GeneratedMesh& apply_viewing_transformations(GeneratedMesh& m); // applies viewing transformations to mesh, do not divide last term
 	GeneratedMesh& apply_culling(GeneratedMesh& m); // applies selected culling algorithm to mesh
 	GeneratedMesh& apply_clipping(GeneratedMesh& m); // applies selected clipping to mesh
+	void render();
 	void render(GeneratedMesh& m);
+	void render(generated_triangle& t);
+	void render(generated_line& l);
 	CameraHandler(Camera& camera, Scene& scene);
 	//TODO: transformation functions, concatanetion of transformations
 };

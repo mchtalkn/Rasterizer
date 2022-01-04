@@ -34,7 +34,27 @@ GeneratedMesh& CameraHandler::apply_clipping(GeneratedMesh& m)
 	return m;
 }
 
+void CameraHandler::render()
+{
+	for (GeneratedMesh& m : generated_meshes) render(m);
+	//TODO write image to file
+}
+
 void CameraHandler::render(GeneratedMesh& m)
+{
+	if (m.original.type == 0) {
+		for (generated_line& l : m.generated_lines) render(l);
+	}
+	else if (m.original.type == 1) {
+		for (generated_triangle& t : m.generated_triangles) render(m);
+	}
+}
+
+void CameraHandler::render(generated_triangle& t)
+{
+}
+
+void CameraHandler::render(generated_line& l)
 {
 }
 
