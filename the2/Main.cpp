@@ -5,9 +5,6 @@
 #include "Matrix4.h"
 #include "Helpers.h"
 
-using namespace std;
-
-Scene *scene;
 
 int main(int argc, char *argv[])
 {

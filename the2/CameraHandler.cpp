@@ -2,9 +2,12 @@
 
 GeneratedMesh& CameraHandler::apply_modeling_transformation(GeneratedMesh& m)
 {
-	// TODO:
+    for(int i=0; i<m.original.numberOfTransformations; i++){
+        TransformationFetchRun(m.original.transformationIds[i], m.original.transformationTypes[i], scene);
+    }
 	return m;
 }
+
 
 void CameraHandler::generate_orthographic_matrix()
 {
@@ -127,4 +130,27 @@ bool visible(float den, float num, float& te, float& tl)
 		return false;
 	}
 	return true;
+}
+
+Transformation& TransformationFetchRun(int id, char type, Scene s){
+    switch(type){
+        case 't' : {
+            for(int i=0; i< s.translations.size(); i++){
+                if(s.translations[i]->id==id) { Transformation(*(s.translations[i]); break; }
+            }
+            break;
+        }
+        case 's' : {
+            for(int i=0; i< s.scalings.size(); i++){
+                if(s.scalings[i]->id==id) { Transformation(*(s.scalings[i]); break; }
+            }
+            break;
+        }
+        case 'r' : {
+            for(int i=0; i< s.rotations.size(); i++){
+                if(s.rotations[i]->id==id) { Transformation(*(s.rotations[i]); break; }
+            }
+            break;
+        }
+    }
 }
