@@ -28,10 +28,58 @@ GeneratedMesh& CameraHandler::apply_culling(GeneratedMesh& m)
 	return m;
 }
 
+bool CameraHandler::backface_culling(Triangle& t)
+{
+	return false;
+}
+
 GeneratedMesh& CameraHandler::apply_clipping(GeneratedMesh& m)
 {
 	// TODO:
 	return m;
+}
+
+bool CameraHandler::apply_clipping(generated_line& l)
+{
+	// TODO: 
+	float tE = 0;
+	float tL = 1;
+	bool is_visible = false;
+	float dx = l.vertices[0].getElementAt(0) - l.vertices[1].getElementAt(0);
+	float dy = l.vertices[0].getElementAt(1) - l.vertices[1].getElementAt(1);
+	float dz = l.vertices[0].getElementAt(2) - l.vertices[1].getElementAt(2);
+	double& x0 = l.vertices[0].x;
+	double& y0 = l.vertices[0].y;
+	double& z0 = l.vertices[0].z;
+	double& x1 = l.vertices[1].x;
+	double& y1 = l.vertices[1].y;
+	double& z1 = l.vertices[1].z;
+	if (visible(dx, xmin - x0, tE, tL)) // left
+		if (visible(-dx, x0 - xmax, tE, tL)) // right
+			if (visible(dy, ymin - y0, tE, tL)) // bottom
+				if (visible(-dy, y0 - ymax, tE, tL)) // top
+					if (visible(dz, zmin - z0, tE, tL)) // front
+						if (visible(-dz, z0 - zmax, tE, tL)) // back
+						{
+							is_visible = true;
+							if (tL < 1) {
+								x1 = x0 + dx * tL;
+								y1 = y0 + dy * tL;
+								z1 = z0 + dz * tL;
+							}if (tE > 0) {
+								x0 = x0 + dx * tE;
+								y0 = y0 + dy * tE;
+								z0 = z0 + dx * tE;
+							}
+							return true;
+						}
+	return false; // TODO: not visible what to do set null,s add field etc ?
+}
+
+vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
+{
+	
+	return vector<generated_triangle>();
 }
 
 void CameraHandler::render()
@@ -60,4 +108,23 @@ void CameraHandler::render(generated_line& l)
 
 CameraHandler::CameraHandler(Camera& camera_, Scene& scene_):camera(camera_),scene(scene_)
 {
+}
+
+bool visible(float den, float num, float& te, float& tl)
+{
+	float t;
+	if (den > 0) {
+		t = num / den;
+		if (t > tl) return false;
+		if (t > te) te = t;
+	}
+	else if (den < 0) {
+		t = num / den;
+		if (t < te) return false;
+		if (t < tl) tl = t;
+	}
+	else if(num >0) {
+		return false;
+	}
+	return true;
 }
