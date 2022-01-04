@@ -5,6 +5,7 @@
 #include "Rotation.h"
 #include "Mesh.h"
 #include "Vec4.h"
+#include "GeneratedMesh.h"
 class Transformation
 {
 	Matrix4 matrix;
@@ -12,7 +13,7 @@ class Transformation
 	Transformation(const Rotation& r);
 	Transformation(const Translation& t);
 	Transformation& concatenate(Transformation& t); // changes transformation in the argument and returns it
-	Mesh& apply(Mesh& m); // Changes argument and returns it
-	Triangle& apply(Triangle& t); // Changes argument and returns it
+	GeneratedMesh& apply(GeneratedMesh& m); // Changes argument and returns it
+	generated_triangle& apply(generated_triangle& t); // Changes argument and returns it
 	Vec4& apply(Vec4& v); // Changes argument and returns it
 };
