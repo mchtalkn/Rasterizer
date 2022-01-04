@@ -23,7 +23,10 @@ void CameraHandler::generate_orthographic_matrix()
 
 void CameraHandler::generate_perspective_matrix()
 {
-	// TODO:
+    double f = this->camera.far;
+    double n = this->camera.near;
+    double val[4][4] = {[n, 0, 0,  0], [ 0, n, 0, 0], [0,0, (f+n), (f*n)], [ 0,0,-1,0]}
+    this->perspective =  Matrix4(val);
 }
 
 GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
