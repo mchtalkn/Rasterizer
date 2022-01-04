@@ -20,13 +20,13 @@ Transformation& Transformation::concatenate(Transformation& t)
 	return t;
 }
 
-Mesh& Transformation::apply(Mesh& m)
+GeneratedMesh& Transformation::apply(GeneratedMesh& m)
 {
 	// TODO: insert return statement here
 	return m;
 }
 
-Triangle& Transformation::apply(Triangle& t)
+generated_triangle& Transformation::apply(generated_triangle& t)
 {
 	// TODO: insert return statement here
 	return t;

@@ -30,6 +30,15 @@ Vec4::Vec4(const Vec4 &other)
     this->colorId = other.colorId;
 }
 
+Vec4::Vec4(const Vec3& other)
+{
+    this->x = other.x;
+    this->y = other.y;
+    this->z = other.z;
+    this->t = 1;
+    this->colorId = other.colorId;
+}
+
 double Vec4::getElementAt(int index)
 {
     switch (index)
