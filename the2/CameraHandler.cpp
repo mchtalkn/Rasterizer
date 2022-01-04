@@ -1,5 +1,8 @@
 #include "CameraHandler.h"
 
+// shorthand notation, filled in constructor once.
+double r,l,t,b,n,f;
+
 GeneratedMesh& CameraHandler::apply_modeling_transformation(GeneratedMesh& m)
 {
     for(int i=0; i<m.original.numberOfTransformations; i++){
@@ -11,21 +14,13 @@ GeneratedMesh& CameraHandler::apply_modeling_transformation(GeneratedMesh& m)
 
 void CameraHandler::generate_orthographic_matrix()
 {
-	double r = this->camera.right;
-    double l = this->camera.left;
-    double t = this->camera.top;
-    double b = this->camera.bottom;
-    double f = this->camera.far;
-    double n = this->camera.near;
     double val[4][4] = {[2/(r-l), 0, 0,  -1*(r+l)/(r-l)], [ 0, 2/(t-b), 0, -1*(t+b)/(t-b)], [0,0, -2/(f-n), -(f+n)/(f-n)], [ 0,0,0,1]}
     this->orthographic =  Matrix4(val);
 }
 
 void CameraHandler::generate_perspective_matrix()
 {
-    double f = this->camera.far;
-    double n = this->camera.near;
-    double val[4][4] = {[n, 0, 0,  0], [ 0, n, 0, 0], [0,0, (f+n), (f*n)], [ 0,0,-1,0]}
+    double val[4][4] = {[(2*n)/(r-l), 0, (r+l)/(r-l), 0],[ 0, 2*n/(t-b), (t+b)/(t-b), 0],[ 0,0, -(f+n)/(f-n), -2*f*n/(f-n)],[ 0,0,-1,0]}
     this->perspective =  Matrix4(val);
 }
 
@@ -121,6 +116,12 @@ void CameraHandler::render(generated_line& l)
 
 CameraHandler::CameraHandler(Camera& camera_, Scene& scene_):camera(camera_),scene(scene_)
 {
+    r = this->camera.right;
+    l = this->camera.left;
+    t = this->camera.top;
+    b = this->camera.bottom;
+    f = this->camera.far;
+    n = this->camera.near;
 }
 
 bool visible(float den, float num, float& te, float& tl)
