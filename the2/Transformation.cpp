@@ -21,9 +21,9 @@ Transformation::Transformation(const Rotation& r)
     Vec3 w = crossProductVec3(u, v);
     normalizeVec3(v);
     normalizeVec3(w);
-    double val[4][4] = {[u.x, v.x , w.x , 0],[u.y,  v.y , w.y , 0],[u.z,  v.z , w.z , 0],[0, 0 , 0 , 1] };
-    double val2[4][4] = {[u.x, u.y, u.z ,  0],[v.x ,  v.y , v.z , 0],[w.x ,  w.y ,  w.z , 0],[0, 0 , 0 , 1] };
-    double val3[4][4] = {[1,0,0 0],[0, cos(r.angle), -sin(r.angle), 0],[0, sin(r.angle), cos(r.angls
+    double val[4][4] = {{u.x, v.x , w.x , 0},{u.y,  v.y , w.y , 0},{u.z,  v.z , w.z , 0},{0, 0 , 0 , 1}};
+    double val2[4][4] = {{u.x, u.y, u.z ,  0},{v.x ,  v.y , v.z , 0},{w.x ,  w.y ,  w.z , 0},{0, 0 , 0 , 1}};
+    double val3[4][4] = {{1,0,0 0},{0, cos(r.angle), -sin(r.angle), 0},{0, sin(r.angle), cos(r.angle),0}, {0,0,0,1}};
     M =  Matrix4(val2);
     M_rot =  Matrix4(val3);
     this->matrix = multiplyMatrixWithMatrix( M_inv, multiplyMatrixWithMatrix(M_rot, M));
@@ -31,7 +31,7 @@ Transformation::Transformation(const Rotation& r)
 
 Transformation::Transformation(const Translation& t)
 {
-    double val[4][4] = {[1,0,0 t.tx],[0, 1, 0, t.ty],[0, 0, 1, t.tz],[0, 0 , 0 , 1] };
+    double val[4][4] = {{1,0,0 t.tx},{0, 1, 0, t.ty},{0, 0, 1, t.tz},{0, 0 , 0 , 1}};
     this->matrix =  Matrix4(val);
 }
 
