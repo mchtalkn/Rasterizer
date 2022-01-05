@@ -43,9 +43,9 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
             //perspective divide
             divisor = m.generated_triangles[i].vertices[j].t;
             if(m.generated_triangles[i].vertices[j].t != 1){
-                m.generated_triangles[i].vertices[j].x= m.generated_triangles[i].vertices[j].x/ divisor;
-                m.generated_triangles[i].vertices[j].y= m.generated_triangles[i].vertices[j].y/ divisor;
-                m.generated_triangles[i].vertices[j].z= m.generated_triangles[i].vertices[j].z/ divisor;
+                m.generated_triangles[i].vertices[j].x /= divisor;
+                m.generated_triangles[i].vertices[j].y /= divisor;
+                m.generated_triangles[i].vertices[j].z /= divisor;
                 m.generated_triangles[i].vertices[j].t=1;
             }
             // viewport transformation = t becomes 0, do not use it anymore.
@@ -60,9 +60,9 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
             //perspective divide
             divisor = m.generated_triangles[i].vertices[j].t;
             if(m.generated_lines[i].vertices[j].t != 1){
-                m.generated_lines[i].vertices[j].x= m.generated_lines[i].vertices[j].x/ divisor;
-                m.generated_lines[i].vertices[j].y= m.generated_lines[i].vertices[j].y/ divisor;
-                m.generated_lines[i].vertices[j].z= m.generated_lines[i].vertices[j].z/ divisor;
+                m.generated_lines[i].vertices[j].x /= divisor;
+                m.generated_lines[i].vertices[j].y /= divisor;
+                m.generated_lines[i].vertices[j].z /= divisor;
                 m.generated_lines[i].vertices[j].t=1;
             }
             // viewport transformation = t becomes 0, do not use it anymore.
