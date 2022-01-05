@@ -8,6 +8,7 @@ struct generated_line {
 };
 struct generated_triangle {
 	Vec4 vertices[3];
+    Vec4 normal;
 	generated_triangle(Triangle& t, Scene& s);
 };
 class GeneratedMesh

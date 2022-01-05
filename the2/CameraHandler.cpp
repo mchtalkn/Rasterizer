@@ -4,10 +4,12 @@
 double r,l,t,b,n,f;
 int nx, ny;
 
+using namespace Transformation;
+
 GeneratedMesh& CameraHandler::apply_modeling_transformation(GeneratedMesh& m)
 {
     for(int i=0; i<m.original.numberOfTransformations; i++){
-        TransformationFetchRun(m.original.transformationIds[i], m.original.transformationTypes[i], scene);
+        modelingTransformationFetchRun(m.original.transformationIds[i], m.original.transformationTypes[i], scene, m);
     }
 	return m;
 }
@@ -15,21 +17,23 @@ GeneratedMesh& CameraHandler::apply_modeling_transformation(GeneratedMesh& m)
 
 void CameraHandler::generate_orthographic_matrix()
 {
-    double val[4][4] = {{2/(r-l), 0, 0,  -1*(r+l)/(r-l)}, { 0, 2/(t-b), 0, -1*(t+b)/(t-b)}, {0,0, -2/(f-n), -(f+n)/(f-n)}, { 0,0,0,1}};
+    double val[4][4] = {{2/(r-l), 0, 0,  -1*(r+l)/(r-l)}, { 0, 2/(t-b), 0, -1*(t+b)/(t-b)},
+                        {0,0, -2/(f-n), -(f+n)/(f-n)}, { 0,0,0,1}};
     this->orthographic =  Matrix4(val);
 }
 
 void CameraHandler::generate_perspective_matrix()
 {
-    double val[4][4] = {{(2*n)/(r-l), 0, (r+l)/(r-l), 0},{ 0, 2*n/(t-b), (t+b)/(t-b), 0},{ 0,0, -(f+n)/(f-n), -2*f*n/(f-n)},{ 0,0,-1,0}};
+    double val[4][4] = {{(2*n)/(r-l), 0, (r+l)/(r-l), 0},{ 0, 2*n/(t-b), (t+b)/(t-b), 0},
+                        { 0,0, -(f+n)/(f-n), -2*f*n/(f-n)},{ 0,0,-1,0}};
     this->perspective =  Matrix4(val);
 }
 
 GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
 {
     int i,j;
-    double divisor;
-    double viewport[4][4] = {{nx/2, 0, 0, (nx-1)/2},{ 0, ny/2, 0, (ny-1)/2},{ 0,0, 1/2, 1/2}, {0,0,0,0}};
+    double viewport[4][4] = {{nx/2, 0, 0, (nx-1)/2},{ 0, ny/2, 0, (ny-1)/2},
+                             { 0,0, 1/2, 1/2}, {0,0,0,0}};
 
     generate_orthographic_matrix();
     generate_perspective_matrix();
@@ -40,30 +44,18 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
             // viewing transformation
             m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(this->viewingTrans, m.generated_triangles[i].vertices[j]);
             //perspective divide
-            divisor = m.generated_triangles[i].vertices[j].t;
-            if(m.generated_triangles[i].vertices[j].t != 1){
-                m.generated_triangles[i].vertices[j].x /= divisor;
-                m.generated_triangles[i].vertices[j].y /= divisor;
-                m.generated_triangles[i].vertices[j].z /= divisor;
-                m.generated_triangles[i].vertices[j].t=1;
-            }
+            make_t_1(m.generated_triangles[i].vertices[j]);
             // viewport transformation = t becomes 0, do not use it anymore.
             m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(Matrix4(viewport), m.generated_triangles[i].vertices[j]);
         }
 	}
 	// viewingTrans for lines
     for ( i=0; i< m.generated_lines.size() ; i++){
-        for ( j=0 ; j<3; j++){
+        for ( j=0 ; j<2; j++){
             // viewing transformation
             m.generated_lines[i].vertices[j] = multiplyMatrixWithVec4(this->viewingTrans, m.generated_lines[i].vertices[j]);
             //perspective divide
-            divisor = m.generated_triangles[i].vertices[j].t;
-            if(m.generated_lines[i].vertices[j].t != 1){
-                m.generated_lines[i].vertices[j].x /= divisor;
-                m.generated_lines[i].vertices[j].y /= divisor;
-                m.generated_lines[i].vertices[j].z /= divisor;
-                m.generated_lines[i].vertices[j].t=1;
-            }
+            make_t_1(m.generated_lines[i].vertices[j]);
             // viewport transformation = t becomes 0, do not use it anymore.
             m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(Matrix4(viewport), m.generated_triangles[i].vertices[j]);
         }
@@ -73,7 +65,8 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
 
 GeneratedMesh& CameraHandler::apply_culling(GeneratedMesh& m)
 {
-	// TODO:
+
+
 	return m;
 }
 
@@ -188,25 +181,42 @@ bool visible(float den, float num, float& te, float& tl)
 	return true;
 }
 
-Transformation& TransformationFetchRun(int id, char type, Scene s){
+Transformation& modelingTransformationFetchRun(int id, char type, Scene s, GeneratedMesh mesh){
     switch(type){
         case 't' : {
             for(int i=0; i< s.translations.size(); i++){
-                if(s.translations[i]->id==id) { Transformation(*(s.translations[i]); break; }
+                if(s.translations[i]->id==id) { Transformation t(*(s.translations[i]); t.apply(mesh); break; }
             }
             break;
         }
         case 's' : {
             for(int i=0; i< s.scalings.size(); i++){
-                if(s.scalings[i]->id==id) { Transformation(*(s.scalings[i]); break; }
+                if(s.scalings[i]->id==id) { Transformation t(*(s.scalings[i]); t.apply(mesh); break; }
             }
             break;
         }
         case 'r' : {
             for(int i=0; i< s.rotations.size(); i++){
-                if(s.rotations[i]->id==id) { Transformation(*(s.rotations[i]); break; }
+                if(s.rotations[i]->id==id) { Transformation t(*(s.rotations[i]); t.apply(mesh); break; }
             }
             break;
         }
+    }
+}
+void computeNormals(Vec4 vertices[3]){
+    Vec4 a = vertices[0];
+    Vec4 b = vertices[1];
+    Vec4 c = vertices[2];
+
+    Vec4 normal = crossProduct((c-b), (a-b));
+    normalize(t.indices.normal);
+}
+void make_t_1(Vec4 v){
+    if(v.t != 1){
+        double divisor = v.t;
+        v.x /= divisor;
+        v.y /= divisor;
+        v.z /= divisor;
+        v.t=1;
     }
 }

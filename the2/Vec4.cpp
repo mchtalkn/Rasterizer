@@ -70,3 +70,6 @@ ostream& operator<<(ostream& os, const Vec4& v) {
 Vec4& Vec4::operator=(const Vec4& v){
     this->x=v.x; this->y=v.y; this->z=v.z; this->t=v.t;
 }
+Vec4& Vec4::operator-(const Vec4& v){
+    this->x-=v.x; this->y-=v.y; this->z-=v.z;
+}
