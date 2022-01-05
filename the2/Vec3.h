@@ -2,6 +2,7 @@
 #define __VEC3_H__
 
 #include <iostream>
+#include <Helpers.h>
 using namespace std;
 
 class Vec3
@@ -17,6 +18,7 @@ public:
     double getElementAt(int index);
     
     friend std::ostream& operator<<(std::ostream& os, const Vec3& v);
+    Vec3& operator=(const Vec3& v);
 };
 
 #endif

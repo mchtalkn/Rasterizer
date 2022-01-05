@@ -38,7 +38,8 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
     generate_orthographic_matrix();
     generate_perspective_matrix();
     this->viewingTrans = multiplyMatrixWithMatrix( this->orthographic, this->perspective);
-	// viewingTrans for solid
+
+	// viewingTrans for solid or wireframe
 	for ( i=0; i< m.generated_triangles.size() ; i++){
 	    for ( j=0 ; j<3; j++){
             // viewing transformation
@@ -48,18 +49,9 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
             // viewport transformation = t becomes 0, do not use it anymore.
             m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(Matrix4(viewport), m.generated_triangles[i].vertices[j]);
         }
+	    // computing normal also makes t's all 1 beforehand.
+        m.generated_triangles[i].normal = computeNormals(m.generated_triangles[i].vertices);
 	}
-	// viewingTrans for lines
-    for ( i=0; i< m.generated_lines.size() ; i++){
-        for ( j=0 ; j<2; j++){
-            // viewing transformation
-            m.generated_lines[i].vertices[j] = multiplyMatrixWithVec4(this->viewingTrans, m.generated_lines[i].vertices[j]);
-            //perspective divide
-            make_t_1(m.generated_lines[i].vertices[j]);
-            // viewport transformation = t becomes 0, do not use it anymore.
-            m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(Matrix4(viewport), m.generated_triangles[i].vertices[j]);
-        }
-    }
 	return m;
 }
 
@@ -201,22 +193,5 @@ Transformation& modelingTransformationFetchRun(int id, char type, Scene s, Gener
             }
             break;
         }
-    }
-}
-void computeNormals(Vec4 vertices[3]){
-    Vec4 a = vertices[0];
-    Vec4 b = vertices[1];
-    Vec4 c = vertices[2];
-
-    Vec4 normal = crossProduct((c-b), (a-b));
-    normalize(t.indices.normal);
-}
-void make_t_1(Vec4 v){
-    if(v.t != 1){
-        double divisor = v.t;
-        v.x /= divisor;
-        v.y /= divisor;
-        v.z /= divisor;
-        v.t=1;
     }
 }

@@ -67,9 +67,24 @@ ostream& operator<<(ostream& os, const Vec4& v) {
     return os;
 }
 
+void make_t_1(){
+    if(this->t != 1){
+        double divisor = this->t;
+        this->x /= divisor;
+        this->y /= divisor;
+        this->z /= divisor;
+        this->t =1;
+    }
+}
+
 Vec4& Vec4::operator=(const Vec4& v){
     this->x=v.x; this->y=v.y; this->z=v.z; this->t=v.t;
 }
 Vec4& Vec4::operator-(const Vec4& v){
+    this->make_t_1();
+    v.make_t_1();
     this->x-=v.x; this->y-=v.y; this->z-=v.z;
+}
+Vec3& transferToVec3(){
+    return Vec3(this->x, this->y, this->z, this->colorId);
 }

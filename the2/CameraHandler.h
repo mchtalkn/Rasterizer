@@ -33,7 +33,6 @@ class CameraHandler
 	//TODO: transformation functions, concatanetion of transformations
 };
 bool visible(float den, float num, float& te, float& tl);
-void computeNormals(Vec4[3]);
 Transformation& modelingTransformationFetchRun(int id, char type, Scene s);
-void make_t_1(Vec4 v);
+
 

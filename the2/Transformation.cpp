@@ -47,17 +47,9 @@ GeneratedMesh& Transformation::apply(GeneratedMesh& m)
         for (int j=0 ; j<3; j++){
             // apply modeling transformation matrix in the object
             m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(this->matrix, m.generated_triangles[i].vertices[j]);
-            // do not forget to put the point in original point
-            make_t_1(m.generated_triangles[i].vertices[j]);
         }
-    }
-    for (int i=0; i< m.generated_lines.size() ; i++){
-        for (int j=0 ; j<2; j++){
-            // apply modeling transformation matrix in the object
-            m.generated_lines[i].vertices[j] = multiplyMatrixWithVec4(this->matrix, m.generated_lines[i].vertices[j]);
-            // do not forget to put the point in original point
-            make_t_1(m.generated_lines[i].vertices[j]);
-        }
+        // computing normal also makes t's all 1 beforehand.
+        m.generated_triangles[i].normal = computeNormals(m.generated_triangles[i].vertices);
     }
 	return m;
 }
