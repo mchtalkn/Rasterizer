@@ -2,6 +2,7 @@
 
 // shorthand notation, filled in constructor once.
 double r,l,t,b,n,f;
+int nx, ny;
 
 GeneratedMesh& CameraHandler::apply_modeling_transformation(GeneratedMesh& m)
 {
@@ -14,51 +15,60 @@ GeneratedMesh& CameraHandler::apply_modeling_transformation(GeneratedMesh& m)
 
 void CameraHandler::generate_orthographic_matrix()
 {
-    double val[4][4] = {[2/(r-l), 0, 0,  -1*(r+l)/(r-l)], [ 0, 2/(t-b), 0, -1*(t+b)/(t-b)], [0,0, -2/(f-n), -(f+n)/(f-n)], [ 0,0,0,1]}
+    double val[4][4] = {[2/(r-l), 0, 0,  -1*(r+l)/(r-l)], [ 0, 2/(t-b), 0, -1*(t+b)/(t-b)], [0,0, -2/(f-n), -(f+n)/(f-n)], [ 0,0,0,1]};
     this->orthographic =  Matrix4(val);
 }
 
 void CameraHandler::generate_perspective_matrix()
 {
-    double val[4][4] = {[(2*n)/(r-l), 0, (r+l)/(r-l), 0],[ 0, 2*n/(t-b), (t+b)/(t-b), 0],[ 0,0, -(f+n)/(f-n), -2*f*n/(f-n)],[ 0,0,-1,0]}
+    double val[4][4] = {[(2*n)/(r-l), 0, (r+l)/(r-l), 0],[ 0, 2*n/(t-b), (t+b)/(t-b), 0],[ 0,0, -(f+n)/(f-n), -2*f*n/(f-n)],[ 0,0,-1,0]};
     this->perspective =  Matrix4(val);
 }
 
 GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
 {
+    int i,j;
+    double divisor;
     generate_orthographic_matrix();
     generate_perspective_matrix();
+
+    double viewport[4][4] = {[nx/2, 0, 0, (nx-1)/2],[ 0, ny/2, 0, (ny-1)/2],[ 0,0, 1/2, 1/2], [0,0,0,0]};
 	this->viewingTrans = multiplyMatrixWithMatrix( this->orthographic, this->perspective);
 
-	// this->viewingTrans * vec4f
-	for (int i=0; i< m.generated_triangles.size() ; i++){
-	    for (int j=0 ; j<3; j++){
+	// viewingTrans for solid
+	for ( i=0; i< m.generated_triangles.size() ; i++){
+	    for ( j=0 ; j<3; j++){
+            // viewing transformation
             m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(this->viewingTrans, m.generated_triangles[i].vertices[j]);
+            //perspective divide
+            divisor = m.generated_triangles[i].vertices[j].t;
             if(m.generated_triangles[i].vertices[j].t != 1){
-                m.generated_triangles[i].vertices[j].x= m.generated_triangles[i].vertices[j].x/m.generated_triangles[i].vertices[j].t;
-                m.generated_triangles[i].vertices[j].y= m.generated_triangles[i].vertices[j].y/m.generated_triangles[i].vertices[j].t;
-                m.generated_triangles[i].vertices[j].z= m.generated_triangles[i].vertices[j].z/m.generated_triangles[i].vertices[j].t;
+                m.generated_triangles[i].vertices[j].x= m.generated_triangles[i].vertices[j].x/ divisor;
+                m.generated_triangles[i].vertices[j].y= m.generated_triangles[i].vertices[j].y/ divisor;
+                m.generated_triangles[i].vertices[j].z= m.generated_triangles[i].vertices[j].z/ divisor;
                 m.generated_triangles[i].vertices[j].t=1;
             }
+            // viewport transformation = t becomes 0, do not use it anymore.
+            m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(Matrix4(viewport), m.generated_triangles[i].vertices[j]);
         }
 	}
-    for (int i=0; i< m.generated_lines.size() ; i++){
-        for (int j=0 ; j<3; j++){
+	// viewingTrans for lines
+    for ( i=0; i< m.generated_lines.size() ; i++){
+        for ( j=0 ; j<3; j++){
+            // viewing transformation
             m.generated_lines[i].vertices[j] = multiplyMatrixWithVec4(this->viewingTrans, m.generated_lines[i].vertices[j]);
+            //perspective divide
+            divisor = m.generated_triangles[i].vertices[j].t;
             if(m.generated_lines[i].vertices[j].t != 1){
-                m.generated_lines[i].vertices[j].x= m.generated_lines[i].vertices[j].x/m.generated_lines[i].vertices[j].t;
-                m.generated_lines[i].vertices[j].y= m.generated_lines[i].vertices[j].y/m.generated_lines[i].vertices[j].t;
-                m.generated_lines[i].vertices[j].z= m.generated_lines[i].vertices[j].z/m.generated_lines[i].vertices[j].t;
+                m.generated_lines[i].vertices[j].x= m.generated_lines[i].vertices[j].x/ divisor;
+                m.generated_lines[i].vertices[j].y= m.generated_lines[i].vertices[j].y/ divisor;
+                m.generated_lines[i].vertices[j].z= m.generated_lines[i].vertices[j].z/ divisor;
                 m.generated_lines[i].vertices[j].t=1;
             }
+            // viewport transformation = t becomes 0, do not use it anymore.
+            m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(Matrix4(viewport), m.generated_triangles[i].vertices[j]);
         }
     }
-
-    // perspective divide
-    for(int i=0; i<4; i++){
-        this->viewingTrans.val[i][j]
-    }
-
 	return m;
 }
 
@@ -154,6 +164,9 @@ CameraHandler::CameraHandler(Camera& camera_, Scene& scene_):camera(camera_),sce
     b = this->camera.bottom;
     f = this->camera.far;
     n = this->camera.near;
+    // ------------ RESOLUTION ---------
+    nx = this->camera.horRes;
+    ny = this->camera.verRes;
 }
 
 bool visible(float den, float num, float& te, float& tl)
