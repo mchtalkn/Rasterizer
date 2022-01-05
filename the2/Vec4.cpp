@@ -60,6 +60,38 @@ double Vec4::getElementAt(int index)
     }
 }
 
+Vec4 Vec4::operator-(const Vec4& rhs)
+{
+    Vec4 v;
+    v.x = x - rhs.x;
+    v.y = y - rhs.y;
+    v.z = z - rhs.z;
+    v.t = t;
+    //v.t = t - rhs.t; // I wont use this probably
+    return v;
+}
+
+Vec4 Vec4::operator+(const Vec4& rhs)
+{
+    Vec4 v;
+    v.x = x + rhs.x;
+    v.y = y + rhs.y;
+    v.z = z + rhs.z;
+    v.t = t;
+    //v.t = t - rhs.t; // I wont use this probably
+    return v;
+}
+
+Vec4 Vec4::operator*(const float rhs)
+{
+    Vec4 v;
+    v.x = x * rhs;
+    v.y = y * rhs;
+    v.z = z * rhs;
+    v.t = t;
+    return v;
+}
+
 ostream& operator<<(ostream& os, const Vec4& v) {
     
     os << fixed << setprecision(6) << "[" << v.x << ", " << v.y << ", " << v.z << ", " << v.t << "]";

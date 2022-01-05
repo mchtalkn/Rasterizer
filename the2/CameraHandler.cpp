@@ -36,6 +36,21 @@ bool CameraHandler::backface_culling(Triangle& t)
 GeneratedMesh& CameraHandler::apply_clipping(GeneratedMesh& m)
 {
 	// TODO:
+	if (m.original.type == 0) {
+		vector<generated_triangle> new_t;
+		for (int i = 0; i < m.generated_triangles.size(); i++) {
+			vector<generated_triangle> append = apply_clipping(m.generated_triangles[i]);
+			new_t.insert(new_t.end(), append.begin(), append.end());
+		}
+	}
+	if (m.original.type == 1) {
+		for (int i = 0; i < m.generated_lines.size(); i++) {
+			if (!apply_clipping(m.generated_lines[i])) {
+				m.generated_lines.erase(m.generated_lines.begin() + i);
+				i--;
+			}
+		}
+	}
 	return m;
 }
 
@@ -78,8 +93,130 @@ bool CameraHandler::apply_clipping(generated_line& l)
 
 vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 {
-	
-	return vector<generated_triangle>();
+	vector<Vec4> old_v, new_v;
+	old_v.push_back(m.vertices[0]);
+	old_v.push_back(m.vertices[1]);
+	old_v.push_back(m.vertices[2]);
+	float mins[3] = { xmin,ymin,zmin };
+	float maxs[3] = { xmax,ymax,zmax };
+	for (int axis = 0; axis < 3; axis++) {
+		for (int i = 0; i < old_v.size() - 1; i++) {
+			if (old_v[i].getElementAt(axis) <= maxs[axis]) {
+				if (old_v[i + 1].getElementAt(axis) <= maxs[axis]) {
+					new_v.push_back(old_v[i + 1]);
+				}
+				else if (old_v[i + 1].getElementAt(axis) > maxs[axis]) {
+					Vec4 slope = old_v[i + 1] - old_v[i];
+					float diff = maxs[axis] - old_v[i].getElementAt(axis);
+
+					Vec4 vip = old_v[i] + slope * diff;
+					new_v.push_back(vip);
+				}
+			}
+			else {
+				if (old_v[i + 1].getElementAt(axis) > maxs[axis]) { //TODO not sure about equality ?
+
+				}
+				else {
+					Vec4 slope = old_v[i + 1] - old_v[i];
+					float diff = maxs[axis] - old_v[i].getElementAt(axis);
+
+					Vec4 vip = old_v[i] + slope * diff;
+					new_v.push_back(vip);
+					new_v.push_back(old_v[i + 1]);
+				}
+			}
+		}
+		int i = old_v.size() - 1;
+		if (old_v[i].getElementAt(axis) <= maxs[axis]) {
+			if (old_v[0].getElementAt(axis) <= maxs[axis]) {
+				new_v.push_back(old_v[0]);
+			}
+			else if (old_v[i + 1].getElementAt(axis) > maxs[axis]) {
+				Vec4 slope = old_v[0] - old_v[i];
+				float diff = maxs[axis] - old_v[i].getElementAt(axis);
+
+				Vec4 vip = old_v[i] + slope * diff;
+				new_v.push_back(vip);
+			}
+		}
+		else {
+			if (old_v[0].getElementAt(axis) > maxs[axis]) { //TODO not sure about equality ?
+
+			}
+			else {
+				Vec4 slope = old_v[0] - old_v[i];
+				float diff = maxs[axis] - old_v[i].getElementAt(axis);
+
+				Vec4 vip = old_v[i] + slope * diff;
+				new_v.push_back(vip);
+				new_v.push_back(old_v[0]);
+			}
+		}
+		old_v = move(new_v);
+
+		// iteration for maxs
+		for (int i = 0; i < old_v.size() - 1; i++) {
+			if (old_v[i].getElementAt(axis) >= mins[axis]) {
+				if (old_v[i + 1].getElementAt(axis) >= mins[axis]) {
+					new_v.push_back(old_v[i + 1]);
+				}
+				else if (old_v[i + 1].getElementAt(axis) < mins[axis]) {
+					Vec4 slope = old_v[i + 1] - old_v[i];
+					float diff = mins[axis] - old_v[i].getElementAt(axis);
+
+					Vec4 vip = old_v[i] + slope * diff;
+					new_v.push_back(vip);
+				}
+			}
+			else {
+				if (old_v[i + 1].getElementAt(axis) < mins[axis]) { //TODO not sure about equality ?
+
+				}
+				else {
+					Vec4 slope = old_v[i + 1] - old_v[i];
+					float diff = mins[axis] - old_v[i].getElementAt(axis);
+
+					Vec4 vip = old_v[i] + slope * diff;
+					new_v.push_back(vip);
+					new_v.push_back(old_v[i + 1]);
+				}
+			}
+		}
+		int i = old_v.size() - 1;
+		if (old_v[i].getElementAt(axis) >= mins[axis]) {
+			if (old_v[0].getElementAt(axis) >= mins[axis]) {
+				new_v.push_back(old_v[0]);
+			}
+			else if (old_v[i + 1].getElementAt(axis) < mins[axis]) {
+				Vec4 slope = old_v[0] - old_v[i];
+				float diff = mins[axis] - old_v[i].getElementAt(axis);
+
+				Vec4 vip = old_v[i] + slope * diff;
+				new_v.push_back(vip);
+			}
+		}
+		else {
+			if (old_v[0].getElementAt(axis) < mins[axis]) { //TODO not sure about equality ?
+
+			}
+			else {
+				Vec4 slope = old_v[0] - old_v[i];
+				float diff = mins[axis] - old_v[i].getElementAt(axis);
+
+				Vec4 vip = old_v[i] + slope * diff;
+				new_v.push_back(vip);
+				new_v.push_back(old_v[0]);
+			}
+		}
+		old_v = move(new_v);
+	}
+	vector <generated_triangle> new_triangles;
+	for (int i = 0; i < new_v.size() - 2; i++) {
+		generated_triangle t(old_v[i],old_v[i+1],old_v[i+2]);
+		new_triangles.push_back(t);
+	}
+	return new_triangles;
 }
 
 void CameraHandler::render()
@@ -94,16 +231,18 @@ void CameraHandler::render(GeneratedMesh& m)
 		for (generated_line& l : m.generated_lines) render(l);
 	}
 	else if (m.original.type == 1) {
-		for (generated_triangle& t : m.generated_triangles) render(m);
+		for (generated_triangle& t : m.generated_triangles) render(t);
 	}
 }
 
 void CameraHandler::render(generated_triangle& t)
 {
+	// Applies rasterization to triangle
 }
 
 void CameraHandler::render(generated_line& l)
 {
+	// Applies rasterization to line
 }
 
 CameraHandler::CameraHandler(Camera& camera_, Scene& scene_):camera(camera_),scene(scene_)
