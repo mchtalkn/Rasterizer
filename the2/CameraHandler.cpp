@@ -174,7 +174,8 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 					Vec4 slope = old_v[i + 1] - old_v[i];
 					float diff = maxs[axis] - old_v[i].getElementAt(axis);
 
-					Vec4 vip = old_v[i] + slope * diff;
+                    Vec4 temp = slope * diff;
+					Vec4 vip = old_v[i] + temp;
 					new_v.push_back(vip);
 				}
 			}
@@ -186,7 +187,8 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 					Vec4 slope = old_v[i + 1] - old_v[i];
 					float diff = maxs[axis] - old_v[i].getElementAt(axis);
 
-					Vec4 vip = old_v[i] + slope * diff;
+                    Vec4 temp = slope * diff;
+					Vec4 vip = old_v[i] + temp;
 					new_v.push_back(vip);
 					new_v.push_back(old_v[i + 1]);
 				}
@@ -201,7 +203,8 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 				Vec4 slope = old_v[0] - old_v[i];
 				float diff = maxs[axis] - old_v[i].getElementAt(axis);
 
-				Vec4 vip = old_v[i] + slope * diff;
+                Vec4 temp = slope * diff;
+				Vec4 vip = old_v[i] + temp;
 				new_v.push_back(vip);
 			}
 		}
@@ -213,7 +216,8 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 				Vec4 slope = old_v[0] - old_v[i];
 				float diff = maxs[axis] - old_v[i].getElementAt(axis);
 
-				Vec4 vip = old_v[i] + slope * diff;
+                Vec4 temp = slope * diff;
+				Vec4 vip = old_v[i] + temp;
 				new_v.push_back(vip);
 				new_v.push_back(old_v[0]);
 			}
@@ -230,7 +234,8 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 					Vec4 slope = old_v[i + 1] - old_v[i];
 					float diff = mins[axis] - old_v[i].getElementAt(axis);
 
-					Vec4 vip = old_v[i] + slope * diff;
+                    Vec4 temp = slope * diff;
+					Vec4 vip = old_v[i] + temp;
 					new_v.push_back(vip);
 				}
 			}
@@ -242,7 +247,8 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 					Vec4 slope = old_v[i + 1] - old_v[i];
 					float diff = mins[axis] - old_v[i].getElementAt(axis);
 
-					Vec4 vip = old_v[i] + slope * diff;
+                    Vec4 temp = slope * diff;
+					Vec4 vip = old_v[i] + temp;
 					new_v.push_back(vip);
 					new_v.push_back(old_v[i + 1]);
 				}
@@ -257,7 +263,8 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 				Vec4 slope = old_v[0] - old_v[i];
 				float diff = mins[axis] - old_v[i].getElementAt(axis);
 
-				Vec4 vip = old_v[i] + slope * diff;
+                Vec4 temp = slope * diff;
+				Vec4 vip = old_v[i] + temp;
 				new_v.push_back(vip);
 			}
 		}
@@ -269,7 +276,8 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 				Vec4 slope = old_v[0] - old_v[i];
 				float diff = mins[axis] - old_v[i].getElementAt(axis);
 
-				Vec4 vip = old_v[i] + slope * diff;
+                Vec4 temp = slope * diff;
+				Vec4 vip = old_v[i] + temp;
 				new_v.push_back(vip);
 				new_v.push_back(old_v[0]);
 			}
