@@ -24,11 +24,18 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
 
 GeneratedMesh& CameraHandler::apply_culling(GeneratedMesh& m)
 {
-	// TODO:
+	int i=0;
+	vector<generated_triangle> new_t;
+	while (i < m.generated_triangles.size()) {
+		if (!backface_culling(m.generated_triangles[i])) {
+			new_t.push_back(m.generated_triangles[i]);
+		}
+	}
+	m.generated_triangles = move(new_t);
 	return m;
 }
 
-bool CameraHandler::backface_culling(Triangle& t)
+bool CameraHandler::backface_culling(generated_triangle& t)
 {
 	Vec3 p1, p2, p3;
 	Vec3 a,b,c;
