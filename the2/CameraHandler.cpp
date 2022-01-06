@@ -26,6 +26,10 @@ void modelingTransformationFetchRun(int id, char type, Scene s, GeneratedMesh me
         }
     }
 }
+
+double val2[4][4] = {{u.x, u.y, u.z ,  0},{v.x ,  v.y , v.z , 0},{w.x ,  w.y ,  w.z , 0},{0, 0 , 0 , 1}};
+
+
 GeneratedMesh& CameraHandler::apply_modeling_transformation(GeneratedMesh& m)
 {
     for(int i=0; i<m.original.numberOfTransformations; i++){
@@ -49,12 +53,19 @@ void CameraHandler::generate_perspective_matrix()
     this->perspective =  Matrix4(val);
 }
 
+void CameraHandler::generate_cameraTrans_matrix(){
+    Vec3 e = this->camera.pos;
+    double val[4][4] = {{u.x, u.y, u.z ,  -(u.x*e.x+u.y*e.y+u.z*e.z)},{v.x ,  v.y , v.z , -(v.x*e.x+v.y*e.y+v.z*e.z)},{w.x ,  w.y ,  w.z , -(w.x*e.x+w.y*e.y+w.z*e.z)},{0, 0 , 0 , 1}};
+    this-> cameraTrans = Matrix4(val);
+}
+
 GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
 {
     int i,j;
     double viewport[4][4] = {{nx/2, 0, 0, (nx-1)/2},{ 0, ny/2, 0, (ny-1)/2},
                              { 0,0, 1/2, 1/2}, {0,0,0,0}};
 
+    generate_cameraTrans_matrix();
     generate_orthographic_matrix();
     generate_perspective_matrix();
     this->viewingTrans = multiplyMatrixWithMatrix( this->orthographic, this->perspective);
@@ -62,6 +73,8 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
 	// viewingTrans for solid or wireframe ==> viewport * orthographic * perspective
 	for ( i=0; i< m.generated_triangles.size() ; i++){
 	    for ( j=0 ; j<3; j++){
+            // camera transformation
+            m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(this->cameraTrans, m.generated_triangles[i].vertices[j]);
             // viewing transformation
             m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(this->viewingTrans, m.generated_triangles[i].vertices[j]);
             // clipping before perspective divide and viewport transformation.

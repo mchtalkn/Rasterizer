@@ -15,6 +15,7 @@ class CameraHandler
 public:
 	Camera& camera;
 	Scene& scene;
+	Matrix4 cameraTrans;
 	Matrix4 orthographic;
 	Matrix4 perspective;
     Matrix4 viewingTrans;
@@ -24,6 +25,7 @@ public:
 	GeneratedMesh& apply_modeling_transformation(GeneratedMesh& m); // applies given modelling transformation mesh
 	void generate_orthographic_matrix(); //calculates and sets orthographic transformation matrix
 	void generate_perspective_matrix(); //calculates and sets perspective transformation matrix
+	void generate_cameraTrans_matrix(); //calculates and sets orthographic transformation matrix
 	GeneratedMesh& apply_viewing_transformations(GeneratedMesh& m); // applies viewing transformations to mesh, do not divide last term
 	GeneratedMesh& apply_culling(GeneratedMesh& m); // applies selected culling algorithm to mesh
 	bool backface_culling(generated_triangle& t); // returns whether triangle should be culled or not
