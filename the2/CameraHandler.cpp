@@ -59,11 +59,13 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
     generate_perspective_matrix();
     this->viewingTrans = multiplyMatrixWithMatrix( this->orthographic, this->perspective);
 
-	// viewingTrans for solid or wireframe
+	// viewingTrans for solid or wireframe ==> viewport * orthographic * perspective
 	for ( i=0; i< m.generated_triangles.size() ; i++){
 	    for ( j=0 ; j<3; j++){
             // viewing transformation
             m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(this->viewingTrans, m.generated_triangles[i].vertices[j]);
+            // clipping before perspective divide and viewport transformation.
+            this->apply_clipping(m);
             //perspective divide
             m.generated_triangles[i].vertices[j].make_t_1();
             // viewport transformation = t becomes 0, do not use it anymore.
