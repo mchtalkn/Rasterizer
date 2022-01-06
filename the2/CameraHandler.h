@@ -26,7 +26,7 @@ public:
 	void generate_perspective_matrix(); //calculates and sets perspective transformation matrix
 	GeneratedMesh& apply_viewing_transformations(GeneratedMesh& m); // applies viewing transformations to mesh, do not divide last term
 	GeneratedMesh& apply_culling(GeneratedMesh& m); // applies selected culling algorithm to mesh
-	bool backface_culling(Triangle& t); // returns whether triangle should be culled or not
+	bool backface_culling(generated_triangle& t); // returns whether triangle should be culled or not
 	GeneratedMesh& apply_clipping(GeneratedMesh& m); // applies selected clipping to mesh
 	bool apply_clipping(generated_line& l);
 	vector<generated_triangle> apply_clipping(generated_triangle& m);
