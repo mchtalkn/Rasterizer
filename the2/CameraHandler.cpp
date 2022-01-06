@@ -30,6 +30,9 @@ GeneratedMesh& CameraHandler::apply_culling(GeneratedMesh& m)
 
 bool CameraHandler::backface_culling(Triangle& t)
 {
+	Vec3 p1, p2, p3;
+	Vec3 a,b,c;
+	Vec3 n;
 	return false;
 }
 
