@@ -183,7 +183,7 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 				}
 			}
 		}
-		int i = old_v.size() - 1;
+		i = old_v.size() - 1;
 		if (old_v[i].getElementAt(axis) >= mins[axis]) {
 			if (old_v[0].getElementAt(axis) >= mins[axis]) {
 				new_v.push_back(old_v[0]);
@@ -243,13 +243,30 @@ void CameraHandler::render(generated_triangle& t)
 	ymin = min(min(int(t.vertices[0].y), int(t.vertices[1].y)), int(t.vertices[3].y));
 	xmax = max(max(int(t.vertices[0].x), int(t.vertices[1].x)), int(t.vertices[3].x));
 	ymax = max(max(int(t.vertices[0].y), int(t.vertices[1].y)), int(t.vertices[3].y));
-	auto f = [](float x, float y, float x0, float y0, float x1, float y1) {
-		return 0;
+	float f01, f12, f20, a, b, c;
+	auto f = [](const float x, const float y, const float x0, const float y0, const float x1, const float y1) {
+		return x*(y0-y1)+y*(x1-x0)+x0*y1-y0*x1;
 	};
-	float a, b, c;
+	f01 = f(t.vertices[2].x, t.vertices[2].y, t.vertices[0].x, t.vertices[0].y, t.vertices[1].x, t.vertices[1].y);
+	f12 = f(t.vertices[0].x, t.vertices[0].y, t.vertices[1].x, t.vertices[1].y, t.vertices[2].x, t.vertices[2].y);
+	f20 = f(t.vertices[1].x, t.vertices[1].y, t.vertices[2].x, t.vertices[2].y, t.vertices[0].x, t.vertices[0].y);
+	Color col;
+	Color c0 = *scene.colorsOfVertices[t.vertices[0].colorId];
+	Color c1 = *scene.colorsOfVertices[t.vertices[1].colorId];
+	Color c2 = *scene.colorsOfVertices[t.vertices[2].colorId];
+
 	for (y = ymin; y <= ymax;y++) {
 		for (x = xmin; x <= xmax; x++) {
-			
+			a = f(x,y, t.vertices[1].x, t.vertices[1].y, t.vertices[2].x, t.vertices[2].y);
+			if (a < 0) continue;
+			b = f(x,y, t.vertices[2].x, t.vertices[2].y, t.vertices[0].x, t.vertices[0].y);
+			if (b < 0) continue;
+			c = f(x,y, t.vertices[0].x, t.vertices[0].y, t.vertices[1].x, t.vertices[1].y);
+			if (c < 0) continue;
+			col.r = a * c0.r + b * c1.r + c * c2.r;
+			col.g = a * c0.g + b * c1.g + c * c2.g;
+			col.b = a * c0.b + b * c1.b + c * c2.b;
+			image[y][x] = col;
 		}
 	}
 		

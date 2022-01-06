@@ -9,7 +9,7 @@ project ("the2")
 
 # TODO: Add tests and install targets if needed.
 
-
+set (CMAKE_CXX_STANDARD 17)
 File(GLOB GIVEN_FILES "*.h" "*.cpp") 
 
 add_executable(rasterizer ${GIVEN_FILES} "CameraHandler.h" "CameraHandler.cpp" "GeneratedMesh.h" "GeneratedMesh.cpp"  "Transformation.h" "Transformation.cpp")
