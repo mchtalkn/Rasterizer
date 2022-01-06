@@ -16,12 +16,13 @@ public:
     Vec4(const Vec4 &other);
     Vec4(const Vec3& other);
     double getElementAt(int index);
-    void make_t_1();
+    Vec4 operator-( Vec4& v);
+    Vec4 operator*(const float rhs);
     Vec4& operator=(const Vec4& v);
-    Vec4& operator-(const Vec4& v);
-    Vec3& transferToVec3();
-
+    Vec4 operator+( Vec4& rhs);
     friend std::ostream& operator<<(std::ostream& os, const Vec4& v);
+    void make_t_1();
+    Vec3 transferToVec3();
 };
 
 #endif

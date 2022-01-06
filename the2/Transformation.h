@@ -4,11 +4,11 @@
 #include "Translation.h"
 #include "Rotation.h"
 #include "Mesh.h"
-#include "Vec4.h"
 #include "GeneratedMesh.h"
 #include "Helpers.h"
 class Transformation
 {
+public:
 	Matrix4 matrix;
 	Transformation(const Scaling& s);
 	Transformation(const Rotation& r);

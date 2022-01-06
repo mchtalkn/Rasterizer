@@ -1,11 +1,31 @@
 #include "CameraHandler.h"
 
 // shorthand notation, filled in constructor once.
-double r,l,t,b,n,f;
-int nx, ny;
+double r,l,t,b,n,f,
+nx, ny; // these are originally int
 
-using namespace Transformation;
-
+void modelingTransformationFetchRun(int id, char type, Scene s, GeneratedMesh mesh){
+    switch(type){
+        case 't' : {
+            for(int i=0; i< s.translations.size(); i++){
+                if(s.translations[i]->translationId==id) { Transformation t(*(s.translations[i])); t.apply(mesh); break; }
+            }
+            break;
+        }
+        case 's' : {
+            for(int i=0; i< s.scalings.size(); i++){
+                if(s.scalings[i]->scalingId==id) { Transformation t(*(s.scalings[i])); t.apply(mesh); break; }
+            }
+            break;
+        }
+        case 'r' : {
+            for(int i=0; i< s.rotations.size(); i++){
+                if(s.rotations[i]->rotationId==id) { Transformation t(*(s.rotations[i])); t.apply(mesh); break; }
+            }
+            break;
+        }
+    }
+}
 GeneratedMesh& CameraHandler::apply_modeling_transformation(GeneratedMesh& m)
 {
     for(int i=0; i<m.original.numberOfTransformations; i++){
@@ -45,7 +65,7 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
             // viewing transformation
             m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(this->viewingTrans, m.generated_triangles[i].vertices[j]);
             //perspective divide
-            make_t_1(m.generated_triangles[i].vertices[j]);
+            m.generated_triangles[i].vertices[j].make_t_1();
             // viewport transformation = t becomes 0, do not use it anymore.
             m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(Matrix4(viewport), m.generated_triangles[i].vertices[j]);
         }
@@ -171,27 +191,4 @@ bool visible(float den, float num, float& te, float& tl)
 		return false;
 	}
 	return true;
-}
-
-Transformation& modelingTransformationFetchRun(int id, char type, Scene s, GeneratedMesh mesh){
-    switch(type){
-        case 't' : {
-            for(int i=0; i< s.translations.size(); i++){
-                if(s.translations[i]->id==id) { Transformation t(*(s.translations[i]); t.apply(mesh); break; }
-            }
-            break;
-        }
-        case 's' : {
-            for(int i=0; i< s.scalings.size(); i++){
-                if(s.scalings[i]->id==id) { Transformation t(*(s.scalings[i]); t.apply(mesh); break; }
-            }
-            break;
-        }
-        case 'r' : {
-            for(int i=0; i< s.rotations.size(); i++){
-                if(s.rotations[i]->id==id) { Transformation t(*(s.rotations[i]); t.apply(mesh); break; }
-            }
-            break;
-        }
-    }
 }

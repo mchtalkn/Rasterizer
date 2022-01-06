@@ -5,13 +5,11 @@
 #define EPSILON 0.000000001
 
 #include "Matrix4.h"
-#include "Vec3.h"
 #include "Vec4.h"
 #include <cmath>
 
 using namespace std;
 
-Scene *scene;
 /*
  * Calculate cross product of vec3 a, vec3 b and return resulting vec3.
  */
@@ -79,6 +77,6 @@ Matrix4 multiplyMatrixWithMatrix(Matrix4 m1, Matrix4 m2);
 Vec4 multiplyMatrixWithVec4(Matrix4 m, Vec4 v);
 
 
-void computeNormals(Vec4[3]);
+Vec3 computeNormals(Vec4 v[3]);
 
 #endif

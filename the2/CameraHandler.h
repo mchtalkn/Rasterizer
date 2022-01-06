@@ -1,13 +1,18 @@
 #pragma once
+
+#include "Helpers.h" // includes vec4 and vec3.
 #include "Camera.h"
 #include "Scene.h"
-#include "Matrix4.h"
 #include "GeneratedMesh.h"
 #include <vector>
 #include "Transformation.h"
 using namespace std;
+
+void modelingTransformationFetchRun(int id, char type, Scene s);
+
 class CameraHandler
 {
+public:
 	Camera& camera;
 	Scene& scene;
 	Matrix4 orthographic;
@@ -33,6 +38,6 @@ class CameraHandler
 	//TODO: transformation functions, concatanetion of transformations
 };
 bool visible(float den, float num, float& te, float& tl);
-Transformation& modelingTransformationFetchRun(int id, char type, Scene s);
+
 
 

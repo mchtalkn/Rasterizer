@@ -204,10 +204,14 @@ Vec4 multiplyMatrixWithVec4(Matrix4 m, Vec4 v)
 }
 
 Vec3 computeNormals(Vec4 vertices[3]){
-    Vec4 a = vertices[0];
-    Vec4 b = vertices[1];
-    Vec4 c = vertices[2];
+    vertices[0].make_t_1();
+    vertices[1].make_t_1();
+    vertices[2].make_t_1();
+    Vec4 a(vertices[0]);
+    Vec4 b(vertices[1]);
+    Vec4 c(vertices[2]);
 
     Vec3 normal = crossProductVec3( (c-b).transferToVec3(), (a-b).transferToVec3());
-    return normalizeVec3(normal);
+    Vec3 res = normalizeVec3(normal);
+    return res;
 }

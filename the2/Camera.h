@@ -1,7 +1,7 @@
 #ifndef __CAMERA_H__
 #define __CAMERA_H__
 
-#include "Vec3.h"
+#include "Vec4.h"
 #include <string>
 
 using namespace std;

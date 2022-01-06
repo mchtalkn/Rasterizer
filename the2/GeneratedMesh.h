@@ -10,6 +10,7 @@ struct generated_triangle {
 	Vec4 vertices[3];
     Vec3 normal;
 	generated_triangle(Triangle& t, Scene& s);
+	generated_triangle(Vec4& v1, Vec4& v2, Vec4& v3);
 };
 class GeneratedMesh
 {

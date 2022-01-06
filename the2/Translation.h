@@ -8,6 +8,7 @@ using namespace std;
 class Translation
 {
 public:
+
     int translationId;
     double tx, ty, tz;
 

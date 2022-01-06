@@ -5,6 +5,7 @@
 #include "Matrix4.h"
 #include "Helpers.h"
 
+Scene *scene;
 
 int main(int argc, char *argv[])
 {

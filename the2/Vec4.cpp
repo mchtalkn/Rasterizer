@@ -60,6 +60,46 @@ double Vec4::getElementAt(int index)
     }
 }
 
+Vec4 Vec4::operator-( Vec4& rhs)
+{
+    rhs.make_t_1();
+    this->make_t_1();
+    Vec4 res;
+    res.x = this->x - rhs.x;
+    res.y = this->y - rhs.y;
+    res.z = this->z - rhs.z;
+    res.t = 1;
+    return res;
+}
+
+Vec4 Vec4::operator+( Vec4& rhs)
+{
+    rhs.make_t_1();
+    this->make_t_1();
+    Vec4 res;
+    res.x = this->x + rhs.x;
+    res.y = this->y + rhs.y;
+    res.z = this->z + rhs.z;
+    res.t = 1;
+    return res;
+}
+
+Vec4 Vec4::operator*(const float rhs)
+{
+    this->make_t_1();
+    Vec4 res;
+    res.x = this->x * rhs;
+    res.y = this->y * rhs;
+    res.z = this->z * rhs;
+    res.t = 1;
+    return res;
+}
+
+Vec4& Vec4::operator=(const Vec4& v){
+    this->x=v.x; this->y=v.y; this->z=v.z; this->t=v.t;
+    return *this;
+}
+
 ostream& operator<<(ostream& os, const Vec4& v) {
     
     os << fixed << setprecision(6) << "[" << v.x << ", " << v.y << ", " << v.z << ", " << v.t << "]";
@@ -67,7 +107,10 @@ ostream& operator<<(ostream& os, const Vec4& v) {
     return os;
 }
 
-void make_t_1(){
+void Vec4::make_t_1(){
+    if(this->t == 0){
+        cout <<"t is 0 !!!!! ALERT" << endl;
+    }
     if(this->t != 1){
         double divisor = this->t;
         this->x /= divisor;
@@ -77,14 +120,6 @@ void make_t_1(){
     }
 }
 
-Vec4& Vec4::operator=(const Vec4& v){
-    this->x=v.x; this->y=v.y; this->z=v.z; this->t=v.t;
-}
-Vec4& Vec4::operator-(const Vec4& v){
-    this->make_t_1();
-    v.make_t_1();
-    this->x-=v.x; this->y-=v.y; this->z-=v.z;
-}
-Vec3& transferToVec3(){
+Vec3 Vec4::transferToVec3(){
     return Vec3(this->x, this->y, this->z, this->colorId);
 }

@@ -23,6 +23,13 @@ generated_triangle::generated_triangle(Triangle& t, Scene& s)
 	vertices[2] = *s.vertices[t.vertexIds[2]];
 }
 
+generated_triangle::generated_triangle(Vec4& v1, Vec4& v2, Vec4& v3)
+{
+	vertices[0] = v1;
+	vertices[1] = v2;
+	vertices[2] = v3;
+}
+
 generated_line::generated_line(const Vec4& v1, const Vec4& v2)
 {
 	vertices[0] = v1;

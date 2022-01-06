@@ -2,7 +2,6 @@
 #define __VEC3_H__
 
 #include <iostream>
-#include <Helpers.h>
 using namespace std;
 
 class Vec3
