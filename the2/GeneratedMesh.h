@@ -18,4 +18,5 @@ public:
 	vector<generated_triangle> generated_triangles;
 	vector<generated_line> generated_lines;
 	GeneratedMesh(Mesh& original, Scene& s);
+	void set_lines();
 };

@@ -2,17 +2,21 @@
 
 
 
-GeneratedMesh::GeneratedMesh(Mesh& original_, Scene& s):original(original_)
+GeneratedMesh::GeneratedMesh(Mesh& original_, Scene& s) :original(original_)
 {
-	if(original.type == 1)
-		for (Triangle& t : original.triangles) 
-			generated_triangles.push_back(generated_triangle(t,s));
-	else if(original.type == 1)
-		for (Triangle& t : original.triangles) {
-			generated_lines.push_back(generated_line(*s.vertices[t.vertexIds[0]], *s.vertices[t.vertexIds[1]]));
-			generated_lines.push_back(generated_line(*s.vertices[t.vertexIds[1]], *s.vertices[t.vertexIds[2]]));
-			generated_lines.push_back(generated_line(*s.vertices[t.vertexIds[2]], *s.vertices[t.vertexIds[0]]));
-		}
+	if (original.type == 1)
+		for (Triangle& t : original.triangles)
+			generated_triangles.push_back(generated_triangle(t, s));
+}
+
+void GeneratedMesh::set_lines()
+{
+	for (generated_triangle& t : generated_triangles) {
+		generated_lines.push_back(generated_line(t.vertices[0],t.vertices[1]));
+		generated_lines.push_back(generated_line(t.vertices[1], t.vertices[2]));
+		generated_lines.push_back(generated_line(t.vertices[2], t.vertices[0]));
+	}
+	
 }
 
 
