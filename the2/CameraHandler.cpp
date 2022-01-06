@@ -238,10 +238,110 @@ void CameraHandler::render(GeneratedMesh& m)
 void CameraHandler::render(generated_triangle& t)
 {
 	// Applies rasterization to triangle
+	int xmin, ymin, xmax, ymax,x,y;
+	xmin = min(min(int(t.vertices[0].x), int(t.vertices[1].x)), int(t.vertices[3].x));
+	ymin = min(min(int(t.vertices[0].y), int(t.vertices[1].y)), int(t.vertices[3].y));
+	xmax = max(max(int(t.vertices[0].x), int(t.vertices[1].x)), int(t.vertices[3].x));
+	ymax = max(max(int(t.vertices[0].y), int(t.vertices[1].y)), int(t.vertices[3].y));
+	auto f = [](float x, float y, float x0, float y0, float x1, float y1) {
+		return 0;
+	};
+	float a, b, c;
+	for (y = ymin; y <= ymax;y++) {
+		for (x = xmin; x <= xmax; x++) {
+			
+		}
+	}
+		
 }
 
 void CameraHandler::render(generated_line& l)
 {
+	int x, y,x0,y0,x1,y1,d;
+	Color c;
+	Color dc;
+	float x_diff = (l.vertices[1].x - l.vertices[0].x);
+	float y_diff = (l.vertices[1].y - l.vertices[0].y);
+	float slope;
+	if (x_diff == 0) slope = 2;
+	else slope = y_diff / x_diff;
+	if (slope > 1 || slope < -1) {
+		if (slope > 0) {
+			y0 = l.vertices[0].y;
+			y1 = l.vertices[1].y;
+			x0 = l.vertices[0].x;
+			x1 = l.vertices[1].x;
+			c = *scene.colorsOfVertices[l.vertices[0].colorId];
+			dc.r = (scene.colorsOfVertices[l.vertices[1].colorId]->r - c.r )/ (x1 - x0);
+			dc.g = (scene.colorsOfVertices[l.vertices[1].colorId]->g - c.g )/ (x1 - x0);
+			dc.b = (scene.colorsOfVertices[l.vertices[1].colorId]->b - c.b )/ (x1 - x0);
+		}
+		else {
+			y0 = l.vertices[1].y;
+			y1 = l.vertices[0].y;
+			x0 = l.vertices[1].x;
+			x1 = l.vertices[0].x;
+			c = *scene.colorsOfVertices[l.vertices[1].colorId];
+			dc.r = (scene.colorsOfVertices[l.vertices[0].colorId]->r - c.r) / (x1 - x0);
+			dc.g = (scene.colorsOfVertices[l.vertices[0].colorId]->g - c.g) / (x1 - x0);
+			dc.b = (scene.colorsOfVertices[l.vertices[0].colorId]->b - c.b) / (x1 - x0);
+		}
+		y = y0;
+		x = x0;
+		d = 2 * (y0 - y1) + (x1 - x0);
+		while (x <= x1) {
+			image[y][x] = c;
+			if (d < 0) {
+				y = y + 1;
+				d += 2 * (y0 - y1 + x1 - x0);
+			}
+			else {
+				d += 2 * (y0 - y1);
+			}
+			c.r += dc.r;
+			c.g += dc.g;
+			c.b += dc.b;
+		}
+	}
+	else {
+		if (slope > 0) {
+			y0 = l.vertices[0].y;
+			y1 = l.vertices[1].y;
+			x0 = l.vertices[0].x;
+			x1 = l.vertices[1].x;
+			c = *scene.colorsOfVertices[l.vertices[0].colorId];
+			dc.r = (scene.colorsOfVertices[l.vertices[1].colorId]->r - c.r )/ (y1 - y0);
+			dc.g = (scene.colorsOfVertices[l.vertices[1].colorId]->g - c.g )/ (y1 - y0);
+			dc.b = (scene.colorsOfVertices[l.vertices[1].colorId]->b - c.b )/ (y1 - y0);
+		}
+		else {
+			y0 = l.vertices[1].y;
+			y1 = l.vertices[0].y;
+			x0 = l.vertices[1].x;
+			x1 = l.vertices[0].x;
+			c = *scene.colorsOfVertices[l.vertices[1].colorId];
+			dc.r = (scene.colorsOfVertices[l.vertices[0].colorId]->r - c.r) / (y1 - y0);
+			dc.g = (scene.colorsOfVertices[l.vertices[0].colorId]->g - c.g) / (y1 - y0);
+			dc.b = (scene.colorsOfVertices[l.vertices[0].colorId]->b - c.b) / (y1 - y0);
+		}
+		y = y0;
+		x = x0;
+		d = 2 * (x0 - x1) + (y1 - y0);
+		while (y <= y1) {
+			image[y][x] = c;
+			if (d < 0) {
+				x = x + 1;
+				d += 2 * (x0 - x1 + y1 - y0);
+			}
+			else {
+				d += 2 * (x0 - x1);
+			}
+			c.r += dc.r;
+			c.g += dc.g;
+			c.b += dc.b;
+		}
+	}
+	
 	// Applies rasterization to line
 }
 
