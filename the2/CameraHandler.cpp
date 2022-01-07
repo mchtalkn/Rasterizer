@@ -65,11 +65,6 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
     double viewport[4][4] = {{nx/2, 0, 0, (nx-1)/2},{ 0, ny/2, 0, (ny-1)/2},
                              { 0,0, 1/2, 1/2}, {0,0,0,0}};
 
-    generate_cameraTrans_matrix();
-    generate_orthographic_matrix();
-    generate_perspective_matrix();
-    this->viewingTrans = multiplyMatrixWithMatrix( this->orthographic, this->perspective);
-
 	// viewingTrans for solid or wireframe ==> viewport * orthographic * perspective
 	for ( i=0; i< m.generated_triangles.size() ; i++){
 	    for ( j=0 ; j<3; j++){
@@ -360,10 +355,6 @@ void CameraHandler::render(generated_triangle& t)
 			image[y][x] = col;
 		}
 	}
-
-		
-=========
->>>>>>>>> Temporary merge branch 2
 }
 
 void CameraHandler::render(generated_line& l)
