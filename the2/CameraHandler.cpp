@@ -362,8 +362,6 @@ void CameraHandler::render(generated_triangle& t)
 	}
 
 		
-=========
->>>>>>>>> Temporary merge branch 2
 }
 
 void CameraHandler::render(generated_line& l)
