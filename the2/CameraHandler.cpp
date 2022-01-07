@@ -90,9 +90,14 @@ GeneratedMesh& CameraHandler::apply_culling(GeneratedMesh& m)
 
 bool CameraHandler::backface_culling(generated_triangle& t)
 {
-	Vec3 p1, p2, p3;
-	Vec3 a,b,c;
+	
+	Vec4 a,b,c;
 	Vec3 n;
+	a = t.vertices[2] - t.vertices[1];
+	b = t.vertices[3] - t.vertices[1];
+	n.x = a.y * b.z - a.z * b.y;
+	n.y = a.z * b.x - a.x * b.z;
+	n.z = a.x * b.y - a.y * b.x;
 	return false;
 }
 
@@ -287,10 +292,10 @@ void CameraHandler::render(generated_triangle& t)
 {
 	// Applies rasterization to triangle
 	int xmin, ymin, xmax, ymax,x,y;
-	xmin = min(min(int(t.vertices[0].x), int(t.vertices[1].x)), int(t.vertices[3].x));
-	ymin = min(min(int(t.vertices[0].y), int(t.vertices[1].y)), int(t.vertices[3].y));
-	xmax = max(max(int(t.vertices[0].x), int(t.vertices[1].x)), int(t.vertices[3].x));
-	ymax = max(max(int(t.vertices[0].y), int(t.vertices[1].y)), int(t.vertices[3].y));
+	xmin = min(min(int(t.vertices[0].x), int(t.vertices[1].x)), int(t.vertices[2].x));
+	ymin = min(min(int(t.vertices[0].y), int(t.vertices[1].y)), int(t.vertices[2].y));
+	xmax = max(max(int(t.vertices[0].x), int(t.vertices[1].x)), int(t.vertices[2].x));
+	ymax = max(max(int(t.vertices[0].y), int(t.vertices[1].y)), int(t.vertices[2].y));
 	float f01, f12, f20, a, b, c;
 	auto f = [](const float x, const float y, const float x0, const float y0, const float x1, const float y1) {
 		return x*(y0-y1)+y*(x1-x0)+x0*y1-y0*x1;
@@ -305,11 +310,11 @@ void CameraHandler::render(generated_triangle& t)
 
 	for (y = ymin; y <= ymax;y++) {
 		for (x = xmin; x <= xmax; x++) {
-			a = f(x,y, t.vertices[1].x, t.vertices[1].y, t.vertices[2].x, t.vertices[2].y);
+			a = f(x,y, t.vertices[1].x, t.vertices[1].y, t.vertices[2].x, t.vertices[2].y)/f12;
 			if (a < 0) continue;
-			b = f(x,y, t.vertices[2].x, t.vertices[2].y, t.vertices[0].x, t.vertices[0].y);
+			b = f(x,y, t.vertices[2].x, t.vertices[2].y, t.vertices[0].x, t.vertices[0].y)/f20;
 			if (b < 0) continue;
-			c = f(x,y, t.vertices[0].x, t.vertices[0].y, t.vertices[1].x, t.vertices[1].y);
+			c = f(x,y, t.vertices[0].x, t.vertices[0].y, t.vertices[1].x, t.vertices[1].y)/f01;
 			if (c < 0) continue;
 			col.r = a * c0.r + b * c1.r + c * c2.r;
 			col.g = a * c0.g + b * c1.g + c * c2.g;
