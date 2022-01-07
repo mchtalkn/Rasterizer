@@ -360,10 +360,6 @@ void CameraHandler::render(generated_triangle& t)
 			image[y][x] = col;
 		}
 	}
-
-		
-=========
->>>>>>>>> Temporary merge branch 2
 }
 
 void CameraHandler::render(generated_line& l)
