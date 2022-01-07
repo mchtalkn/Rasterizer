@@ -68,7 +68,6 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
     //generate_cameraTrans_matrix();
     //generate_orthographic_matrix();
     //generate_perspective_matrix();
-    this->viewingTrans = multiplyMatrixWithMatrix( this->orthographic, this->perspective);
 
 	// viewingTrans for solid or wireframe ==> viewport * orthographic * perspective
 	for ( i=0; i< m.generated_triangles.size() ; i++){
@@ -93,7 +92,7 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
 			for (int j = 0; j < 2; j++) {
 				m.set_lines();
 				// clipping before perspective divide and viewport transformation.
-				//this->apply_clipping(m);
+				this->apply_clipping(m);
 				//perspective divide
 				m.generated_lines[i].vertices[j].make_t_1();
 				// viewport transformation = t becomes 0, do not use it anymore.
@@ -156,6 +155,8 @@ GeneratedMesh& CameraHandler::apply_clipping(GeneratedMesh& m)
 bool CameraHandler::apply_clipping(generated_line& l)
 {
 	// TODO:
+	float tmax = l.vertices[0].t;
+	float tmin = -1 * l.vertices[0].t;
 	float tE = 0;
 	float tL = 1;
 	bool is_visible = false;
@@ -168,12 +169,12 @@ bool CameraHandler::apply_clipping(generated_line& l)
 	double& x1 = l.vertices[1].x;
 	double& y1 = l.vertices[1].y;
 	double& z1 = l.vertices[1].z;
-	if (visible(dx, xmin - x0, tE, tL)) // left
-		if (visible(-dx, x0 - xmax, tE, tL)) // right
-			if (visible(dy, ymin - y0, tE, tL)) // bottom
-				if (visible(-dy, y0 - ymax, tE, tL)) // top
-					if (visible(dz, zmin - z0, tE, tL)) // front
-						if (visible(-dz, z0 - zmax, tE, tL)) // back
+	if (visible(dx, tmin - x0, tE, tL)) // left
+		if (visible(-dx, x0 - tmax, tE, tL)) // right
+			if (visible(dy, tmin - y0, tE, tL)) // bottom
+				if (visible(-dy, y0 - tmax, tE, tL)) // top
+					if (visible(dz, tmin - z0, tE, tL)) // front
+						if (visible(-dz, z0 - tmax, tE, tL)) // back
 						{
 							is_visible = true;
 							if (tL < 1) {
@@ -196,17 +197,17 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 	old_v.push_back(m.vertices[0]);
 	old_v.push_back(m.vertices[1]);
 	old_v.push_back(m.vertices[2]);
-	float mins[3] = { xmin,ymin,zmin };
-	float maxs[3] = { xmax,ymax,zmax };
+	float tmax = m.vertices[0].t;
+	float tmin = -1 * m.vertices[0].t;
 	for (int axis = 0; axis < 3; axis++) {
 		for (int i = 0; i < old_v.size() - 1; i++) {
-			if (old_v[i].getElementAt(axis) <= maxs[axis]) {
-				if (old_v[i + 1].getElementAt(axis) <= maxs[axis]) {
+			if (old_v[i].getElementAt(axis) <= tmax) {
+				if (old_v[i + 1].getElementAt(axis) <= tmax) {
 					new_v.push_back(old_v[i + 1]);
 				}
-				else if (old_v[i + 1].getElementAt(axis) > maxs[axis]) {
+				else if (old_v[i + 1].getElementAt(axis) > tmax) {
 					Vec4 slope = old_v[i + 1] - old_v[i];
-					float diff = maxs[axis] - old_v[i].getElementAt(axis);
+					float diff = tmax - old_v[i].getElementAt(axis);
 
                     Vec4 temp = slope * diff;
 					Vec4 vip = old_v[i] + temp;
@@ -214,12 +215,12 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 				}
 			}
 			else {
-				if (old_v[i + 1].getElementAt(axis) > maxs[axis]) { //TODO not sure about equality ?
+				if (old_v[i + 1].getElementAt(axis) > tmax) { //TODO not sure about equality ?
 
 				}
 				else {
 					Vec4 slope = old_v[i + 1] - old_v[i];
-					float diff = maxs[axis] - old_v[i].getElementAt(axis);
+					float diff = tmax - old_v[i].getElementAt(axis);
 
                     Vec4 temp = slope * diff;
 					Vec4 vip = old_v[i] + temp;
@@ -229,13 +230,13 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 			}
 		}
 		int i = old_v.size() - 1;
-		if (old_v[i].getElementAt(axis) <= maxs[axis]) {
-			if (old_v[0].getElementAt(axis) <= maxs[axis]) {
+		if (old_v[i].getElementAt(axis) <= tmax) {
+			if (old_v[0].getElementAt(axis) <= tmax) {
 				new_v.push_back(old_v[0]);
 			}
-			else if (old_v[i + 1].getElementAt(axis) > maxs[axis]) {
+			else if (old_v[i + 1].getElementAt(axis) > tmax) {
 				Vec4 slope = old_v[0] - old_v[i];
-				float diff = maxs[axis] - old_v[i].getElementAt(axis);
+				float diff = tmax - old_v[i].getElementAt(axis);
 
                 Vec4 temp = slope * diff;
 				Vec4 vip = old_v[i] + temp;
@@ -243,12 +244,12 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 			}
 		}
 		else {
-			if (old_v[0].getElementAt(axis) > maxs[axis]) { //TODO not sure about equality ?
+			if (old_v[0].getElementAt(axis) > tmax) { //TODO not sure about equality ?
 
 			}
 			else {
 				Vec4 slope = old_v[0] - old_v[i];
-				float diff = maxs[axis] - old_v[i].getElementAt(axis);
+				float diff = tmax - old_v[i].getElementAt(axis);
 
                 Vec4 temp = slope * diff;
 				Vec4 vip = old_v[i] + temp;
@@ -260,13 +261,13 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 
 		// iteration for maxs
 		for (int i = 0; i < old_v.size() - 1; i++) {
-			if (old_v[i].getElementAt(axis) >= mins[axis]) {
-				if (old_v[i + 1].getElementAt(axis) >= mins[axis]) {
+			if (old_v[i].getElementAt(axis) >= tmin) {
+				if (old_v[i + 1].getElementAt(axis) >= tmin) {
 					new_v.push_back(old_v[i + 1]);
 				}
-				else if (old_v[i + 1].getElementAt(axis) < mins[axis]) {
+				else if (old_v[i + 1].getElementAt(axis) < tmin) {
 					Vec4 slope = old_v[i + 1] - old_v[i];
-					float diff = mins[axis] - old_v[i].getElementAt(axis);
+					float diff = tmin - old_v[i].getElementAt(axis);
 
                     Vec4 temp = slope * diff;
 					Vec4 vip = old_v[i] + temp;
@@ -274,12 +275,12 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 				}
 			}
 			else {
-				if (old_v[i + 1].getElementAt(axis) < mins[axis]) { //TODO not sure about equality ?
+				if (old_v[i + 1].getElementAt(axis) < tmin) { //TODO not sure about equality ?
 
 				}
 				else {
 					Vec4 slope = old_v[i + 1] - old_v[i];
-					float diff = mins[axis] - old_v[i].getElementAt(axis);
+					float diff = tmin - old_v[i].getElementAt(axis);
 
                     Vec4 temp = slope * diff;
 					Vec4 vip = old_v[i] + temp;
@@ -289,13 +290,13 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 			}
 		}
 		i = old_v.size() - 1;
-		if (old_v[i].getElementAt(axis) >= mins[axis]) {
-			if (old_v[0].getElementAt(axis) >= mins[axis]) {
+		if (old_v[i].getElementAt(axis) >= tmin) {
+			if (old_v[0].getElementAt(axis) >= tmin) {
 				new_v.push_back(old_v[0]);
 			}
-			else if (old_v[i + 1].getElementAt(axis) < mins[axis]) {
+			else if (old_v[i + 1].getElementAt(axis) < tmin) {
 				Vec4 slope = old_v[0] - old_v[i];
-				float diff = mins[axis] - old_v[i].getElementAt(axis);
+				float diff = tmin - old_v[i].getElementAt(axis);
 
                 Vec4 temp = slope * diff;
 				Vec4 vip = old_v[i] + temp;
@@ -303,12 +304,12 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 			}
 		}
 		else {
-			if (old_v[0].getElementAt(axis) < mins[axis]) { //TODO not sure about equality ?
+			if (old_v[0].getElementAt(axis) < tmin) { //TODO not sure about equality ?
 
 			}
 			else {
 				Vec4 slope = old_v[0] - old_v[i];
-				float diff = mins[axis] - old_v[i].getElementAt(axis);
+				float diff = tmin - old_v[i].getElementAt(axis);
 
                 Vec4 temp = slope * diff;
 				Vec4 vip = old_v[i] + temp;
@@ -491,6 +492,10 @@ CameraHandler::CameraHandler(Camera& camera_, Scene& scene_):camera(camera_),sce
     // ------------ RESOLUTION ---------
     nx = this->camera.horRes;
     ny = this->camera.verRes;
+	generate_orthographic_matrix();
+	generate_perspective_matrix();
+	this->viewingTrans = multiplyMatrixWithMatrix(this->orthographic, this->perspective);
+
 }
 
 bool visible(float den, float num, float& te, float& tl)
