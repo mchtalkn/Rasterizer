@@ -483,6 +483,7 @@ CameraHandler::CameraHandler(Camera& camera_, Scene& scene_):camera(camera_),sce
     // ------------ RESOLUTION ---------
     nx = this->camera.horRes;
     ny = this->camera.verRes;
+    generate_cameraTrans_matrix();
 	generate_orthographic_matrix();
 	generate_perspective_matrix();
 	this->viewingTrans = multiplyMatrixWithMatrix(this->orthographic, this->perspective);
