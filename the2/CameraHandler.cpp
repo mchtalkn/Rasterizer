@@ -27,9 +27,6 @@ void modelingTransformationFetchRun(int id, char type, Scene s, GeneratedMesh me
     }
 }
 
-double val2[4][4] = {{u.x, u.y, u.z ,  0},{v.x ,  v.y , v.z , 0},{w.x ,  w.y ,  w.z , 0},{0, 0 , 0 , 1}};
-
-
 GeneratedMesh& CameraHandler::apply_modeling_transformation(GeneratedMesh& m)
 {
     for(int i=0; i<m.original.numberOfTransformations; i++){
@@ -54,7 +51,10 @@ void CameraHandler::generate_perspective_matrix()
 }
 
 void CameraHandler::generate_cameraTrans_matrix(){
-    Vec3 e = this->camera.pos;
+    Vec3 &e = this->camera.pos;
+    Vec3 &u = this->camera.u;
+    Vec3 &v = this->camera.v;
+    Vec3 &w = this->camera.w;
     double val[4][4] = {{u.x, u.y, u.z ,  -(u.x*e.x+u.y*e.y+u.z*e.z)},{v.x ,  v.y , v.z , -(v.x*e.x+v.y*e.y+v.z*e.z)},{w.x ,  w.y ,  w.z , -(w.x*e.x+w.y*e.y+w.z*e.z)},{0, 0 , 0 , 1}};
     this-> cameraTrans = Matrix4(val);
 }
