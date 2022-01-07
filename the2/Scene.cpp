@@ -16,6 +16,7 @@
 #include "Vec3.h"
 #include "tinyxml2.h"
 #include "Helpers.h"
+#include "CameraHandler.h"
 
 using namespace tinyxml2;
 using namespace std;
@@ -26,6 +27,8 @@ using namespace std;
 */
 void Scene::forwardRenderingPipeline(Camera *camera)
 {
+	CameraHandler c(*camera,*this);
+	c.render();
 	// TODO: Implement this function.
 }
 

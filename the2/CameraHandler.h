@@ -19,7 +19,7 @@ public:
 	Matrix4 orthographic;
 	Matrix4 perspective;
     Matrix4 viewingTrans;
-	vector<vector<Color>> image;
+	vector<vector<Color>>& image;
 	vector<GeneratedMesh> generated_meshes; //meshes after transformations and etc.
 	float xmin, xmax, ymin, ymax, zmin, zmax; // should be set after generating perspective/ortoghraphic
 	GeneratedMesh& apply_modeling_transformation(GeneratedMesh& m); // applies given modelling transformation mesh
