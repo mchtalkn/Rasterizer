@@ -4,7 +4,7 @@
 double r,l,t,b,n,f,
 nx, ny; // these are originally int
 
-void modelingTransformationFetchRun(int id, char type, Scene& s, GeneratedMesh& mesh){
+void modelingTransformationFetchRun(int id, char type, Scene s, GeneratedMesh mesh){
     switch(type){
         case 't' : {
             for(int i=0; i< s.translations.size(); i++){
@@ -77,29 +77,13 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
             m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(this->cameraTrans, m.generated_triangles[i].vertices[j]);
             // viewing transformation
             m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(this->viewingTrans, m.generated_triangles[i].vertices[j]);
-
+            // clipping before perspective divide and viewport transformation.
+            this->apply_clipping(m);
+            //perspective divide
+            m.generated_triangles[i].vertices[j].make_t_1();
+            // viewport transformation = t becomes 0, do not use it anymore.
+            m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(Matrix4(viewport), m.generated_triangles[i].vertices[j]);
         }
-		if (m.original.type == 1) {
-			for (int j = 0; j < 3; j++) {
-				// clipping before perspective divide and viewport transformation.
-				//this->apply_clipping(m);
-				//perspective divide
-				m.generated_triangles[i].vertices[j].make_t_1();
-				// viewport transformation = t becomes 0, do not use it anymore.
-				m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(Matrix4(viewport), m.generated_triangles[i].vertices[j]);
-			}
-		}
-		else {
-			for (int j = 0; j < 2; j++) {
-				m.set_lines();
-				// clipping before perspective divide and viewport transformation.
-				//this->apply_clipping(m);
-				//perspective divide
-				m.generated_lines[i].vertices[j].make_t_1();
-				// viewport transformation = t becomes 0, do not use it anymore.
-				m.generated_lines[i].vertices[j] = multiplyMatrixWithVec4(Matrix4(viewport), m.generated_lines[i].vertices[j]);
-			}
-		}
 	    // computing normal also makes t's all 1 beforehand.
         m.generated_triangles[i].normal = computeNormals(m.generated_triangles[i].vertices);
 	}
@@ -135,14 +119,14 @@ bool CameraHandler::backface_culling(generated_triangle& t)
 GeneratedMesh& CameraHandler::apply_clipping(GeneratedMesh& m)
 {
 	// TODO:
-	if (m.original.type == 1) {
+	if (m.original.type == 0) {
 		vector<generated_triangle> new_t;
 		for (int i = 0; i < m.generated_triangles.size(); i++) {
 			vector<generated_triangle> append = apply_clipping(m.generated_triangles[i]);
 			new_t.insert(new_t.end(), append.begin(), append.end());
 		}
 	}
-	if (m.original.type == 0) {
+	if (m.original.type == 1) {
 		for (int i = 0; i < m.generated_lines.size(); i++) {
 			if (!apply_clipping(m.generated_lines[i])) {
 				m.generated_lines.erase(m.generated_lines.begin() + i);
@@ -328,17 +312,8 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 
 void CameraHandler::render()
 {
-	generate_cameraTrans_matrix();
-	generate_orthographic_matrix();
-	generate_perspective_matrix();
-	for (Mesh* mesh : scene.meshes) {
-		GeneratedMesh m(*mesh, scene);
-		apply_modeling_transformation(m);
-		//apply_clipping(m);
-		//apply_culling(m);
-		apply_viewing_transformations(m);
-		render(m);
-	}
+	for (GeneratedMesh& m : generated_meshes) render(m);
+	//TODO write image to file
 }
 
 void CameraHandler::render(GeneratedMesh& m)
@@ -481,7 +456,7 @@ void CameraHandler::render(generated_line& l)
 	// Applies rasterization to line
 }
 
-CameraHandler::CameraHandler(Camera& camera_, Scene& scene_):camera(camera_),scene(scene_),image(scene.image)
+CameraHandler::CameraHandler(Camera& camera_, Scene& scene_):camera(camera_),scene(scene_)
 {
     // -------- HANDY VARS -----------
     r = this->camera.right;

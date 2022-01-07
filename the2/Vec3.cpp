@@ -53,6 +53,6 @@ ostream& operator<<(ostream& os, const Vec3& v) {
 }
 
 Vec3& Vec3::operator=(const Vec3& v){
-    this->x=v.x; this->y=v.y; this->z=v.z;
+    this->x=v.x; this->y=v.y; this->z=v.z; this->colorId=v.colorId;
     return *this;
 }
