@@ -363,3 +363,9 @@ MigrationBackup/
 FodyWeavers.xsd
 /the2/CMakeFiles
 *.cmake
+/the2/clipping_example
+/the2/culling_disabled_inputs
+/the2/culling_disabled_outputs
+/the2/culling_enabled_inputs
+/the2/culling_enabled_outputs
+/the2/different_projection_type
