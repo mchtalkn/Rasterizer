@@ -378,9 +378,7 @@ void CameraHandler::render(generated_triangle& t)
 		}
 	}
 
-		
-=========
->>>>>>>>> Temporary merge branch 2
+
 }
 
 void CameraHandler::render(generated_line& l)
@@ -473,7 +471,7 @@ void CameraHandler::render(generated_line& l)
 	// Applies rasterization to line
 }
 
-CameraHandler::CameraHandler(Camera& camera_, Scene& scene_):camera(camera_),scene(scene_)
+CameraHandler::CameraHandler(Camera& camera_, Scene& scene_):camera(camera_),scene(scene_),image(scene_.image)
 {
     // -------- HANDY VARS -----------
     r = this->camera.right;
