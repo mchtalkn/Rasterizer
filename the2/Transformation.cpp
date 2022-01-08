@@ -4,6 +4,11 @@ void swap( double &a,  double &b){
     double temp = a;
     a=b; b=temp;
 }
+Transformation::Transformation()
+{
+    double val[4][4] = { {1, 0 , 0 , 0 },{0, 1 , 0 , 0 },{0, 0 , 1 , 0 },{0, 0 , 0 , 1 } };
+    this->matrix = Matrix4(val);
+}
 Transformation::Transformation(const Scaling& s)
 {
     double val[4][4] = {{s.sx, 0 , 0 , 0 },{0, s.sy , 0 , 0 },{0, 0 , s.sz , 0 },{0, 0 , 0 , 1 } };
@@ -36,10 +41,11 @@ Transformation::Transformation(const Translation& t)
     this->matrix =  Matrix4(val);
 }
 
-Transformation& Transformation::concatenate(Transformation& t)
+Transformation& Transformation::concatenate(const Transformation& t)
 {
+    this->matrix = multiplyMatrixWithMatrix(t.matrix, this->matrix);
 	// TODO: insert return statement here
-	return t;
+	return *this;
 }
 
 GeneratedMesh& Transformation::apply(GeneratedMesh& m)

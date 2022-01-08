@@ -4,7 +4,7 @@
 double r,l,t,b,n,f,
 nx, ny; // these are originally int
 
-void modelingTransformationFetchRun(int id, char type, Scene s, GeneratedMesh mesh){
+void modelingTransformationFetchRun(int id, char type, Scene& s, GeneratedMesh& mesh){
     switch(type){
         case 't' : {
             for(int i=0; i< s.translations.size(); i++){
@@ -29,9 +29,24 @@ void modelingTransformationFetchRun(int id, char type, Scene s, GeneratedMesh me
 
 GeneratedMesh& CameraHandler::apply_modeling_transformation(GeneratedMesh& m)
 {
+	Transformation t;
     for(int i=0; i<m.original.numberOfTransformations; i++){
-        modelingTransformationFetchRun(m.original.transformationIds[i], m.original.transformationTypes[i], scene, m);
+		switch (m.original.transformationTypes[i]) {
+		case 't': {
+			t.concatenate(Transformation(*(scene.translations[m.original.transformationIds[i]-1])));
+			break;
+		}
+		case 's': {
+			t.concatenate(Transformation(*(scene.scalings[m.original.transformationIds[i] - 1])));
+			break;
+		}
+		case 'r': {
+			t.concatenate(Transformation(*(scene.rotations[m.original.transformationIds[i] - 1])));
+			break;
+		}
+		}
     }
+	t.apply(m);
 	return m;
 }
 
@@ -407,6 +422,7 @@ void CameraHandler::render(generated_line& l)
 	else if (y_diff == 0 && x_diff < 0) slope = -0.1;
 	else if (y_diff == 0 && x_diff > 0) slope = 0.1;
 	else slope = y_diff / x_diff;
+	int slope_sign;
 	if (slope < 1 && slope > -1) {
 		if (x_diff > 0) {
 			y0 = l.vertices[0].y;
@@ -430,21 +446,36 @@ void CameraHandler::render(generated_line& l)
 		}
 		y = y0;
 		x = x0;
-		d = 2 * (y0 - y1) + (x1 - x0);
+		bool flag = false;
+		bool equality_counter;
+		if (y1 > y0) slope_sign = 1;
+		else slope_sign = -1;
+		d = 2 * (y0 - y1)*slope_sign + (x1 - x0);
 		while (x <= x1) {
 			image[y][x] = c;
 			if (d < 0) {
-				y = y + 1;
-				d += 2 * (y0 - y1 + x1 - x0);
+				y +=  slope_sign;
+				d += 2 * (y0 - y1) + (x1 - x0);
+			}
+			else if(d>0){
+				d += 2 * (y0 - y1)*slope_sign;
 			}
 			else {
-				d += 2 * (y0 - y1);
+				if (flag) {
+					y += slope_sign;
+					d += 2 * (y0 - y1) + (x1 - x0);
+				}
+				else {
+					d += 2 * (y0 - y1) * slope_sign;
+				}
+				flag = !flag;
 			}
 			c.r += dc.r;
 			c.g += dc.g;
 			c.b += dc.b;
 			x++;
 		}
+		int bp = 0;
 	}
 	else {
 		if (y_diff > 0) {
@@ -470,20 +501,23 @@ void CameraHandler::render(generated_line& l)
 		y = y0;
 		x = x0;
 		d = 2 * (x0 - x1) + (y1 - y0);
+		if (x1 > x0) slope_sign = 1;
+		else slope_sign = -1;
 		while (y <= y1) {
 			image[y][x] = c;
 			if (d < 0) {
-				x = x + 1;
-				d += 2 * (x0 - x1 + y1 - y0);
+				x += slope_sign;
+				d += 2 * (x0 - x1) + (y1 - y0);
 			}
 			else {
-				d += 2 * (x0 - x1);
+				d += 2 * (x0 - x1)*slope_sign;
 			}
 			c.r += dc.r;
 			c.g += dc.g;
 			c.b += dc.b;
 			y++;
 		}
+		int bp = 0;
 	}
 	
 	// Applies rasterization to line

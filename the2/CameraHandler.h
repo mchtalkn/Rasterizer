@@ -8,7 +8,7 @@
 #include "Transformation.h"
 using namespace std;
 
-void modelingTransformationFetchRun(int id, char type, Scene s);
+//void modelingTransformationFetchRun(int id, char type, Scene &s);
 
 class CameraHandler
 {
