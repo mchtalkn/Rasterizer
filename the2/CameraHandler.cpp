@@ -78,30 +78,34 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
             m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(this->viewingTrans, m.generated_triangles[i].vertices[j]);
 
         }
-		if (m.original.type == 1) {
-			for (int j = 0; j < 3; j++) {
-				// clipping before perspective divide and viewport transformation.
-				//this->apply_clipping(m);
-				//perspective divide
-				m.generated_triangles[i].vertices[j].make_t_1();
-				// viewport transformation = t becomes 0, do not use it anymore.
-				m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(Matrix4(viewport), m.generated_triangles[i].vertices[j]);
-			}
+	}
+	
+	if (m.original.type == 1) {
+		for (int j = 0; j < 3; j++) {
+			// clipping before perspective divide and viewport transformation.
+			//this->apply_clipping(m);
+			//perspective divide
+			m.generated_triangles[i].vertices[j].make_t_1();
+			// viewport transformation = t becomes 0, do not use it anymore.
+			m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(Matrix4(viewport), m.generated_triangles[i].vertices[j]);
 		}
-		else {
+	}
+	else {
+		m.set_lines();
+		// clipping before perspective divide and viewport transformation.
+		apply_clipping(m);
+		for (int i = 0; i < m.generated_lines.size(); i++) {
 			for (int j = 0; j < 2; j++) {
-				m.set_lines();
-				// clipping before perspective divide and viewport transformation.
-				//this->apply_clipping(m);
 				//perspective divide
 				m.generated_lines[i].vertices[j].make_t_1();
 				// viewport transformation = t becomes 0, do not use it anymore.
 				m.generated_lines[i].vertices[j] = multiplyMatrixWithVec4(Matrix4(viewport), m.generated_lines[i].vertices[j]);
 			}
 		}
-	    // computing normal also makes t's all 1 beforehand.
-        m.generated_triangles[i].normal = computeNormals(m.generated_triangles[i].vertices);
+			
 	}
+	// computing normal also makes t's all 1 beforehand.
+	//m.generated_triangles[i].normal = computeNormals(m.generated_triangles[i].vertices);
 	return m;
 }
 
@@ -134,14 +138,14 @@ bool CameraHandler::backface_culling(generated_triangle& t)
 GeneratedMesh& CameraHandler::apply_clipping(GeneratedMesh& m)
 {
 	// TODO:
-	if (m.original.type == 0) {
+	if (m.original.type == 1) {
 		vector<generated_triangle> new_t;
 		for (int i = 0; i < m.generated_triangles.size(); i++) {
 			vector<generated_triangle> append = apply_clipping(m.generated_triangles[i]);
 			new_t.insert(new_t.end(), append.begin(), append.end());
 		}
 	}
-	if (m.original.type == 1) {
+	if (m.original.type == 0) {
 		for (int i = 0; i < m.generated_lines.size(); i++) {
 			if (!apply_clipping(m.generated_lines[i])) {
 				m.generated_lines.erase(m.generated_lines.begin() + i);
@@ -154,7 +158,8 @@ GeneratedMesh& CameraHandler::apply_clipping(GeneratedMesh& m)
 
 bool CameraHandler::apply_clipping(generated_line& l)
 {
-	// TODO:
+	l.vertices[0].make_t_1(); // TODO these should not be there but added for testing
+	l.vertices[1].make_t_1();
 	float tmax = l.vertices[0].t;
 	float tmin = -1 * l.vertices[0].t;
 	float tE = 0;
@@ -329,8 +334,17 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 
 void CameraHandler::render()
 {
-	for (GeneratedMesh& m : generated_meshes) render(m);
-	//TODO write image to file
+	generate_cameraTrans_matrix();
+	generate_orthographic_matrix();
+	generate_perspective_matrix();
+	for (Mesh* mesh : scene.meshes) {
+		GeneratedMesh m(*mesh, scene);
+		apply_modeling_transformation(m);
+		//apply_clipping(m);
+		//apply_culling(m);
+		apply_viewing_transformations(m);
+		render(m);
+	}
 }
 
 void CameraHandler::render(GeneratedMesh& m)
@@ -359,9 +373,9 @@ void CameraHandler::render(generated_triangle& t)
 	f12 = f(t.vertices[0].x, t.vertices[0].y, t.vertices[1].x, t.vertices[1].y, t.vertices[2].x, t.vertices[2].y);
 	f20 = f(t.vertices[1].x, t.vertices[1].y, t.vertices[2].x, t.vertices[2].y, t.vertices[0].x, t.vertices[0].y);
 	Color col;
-	Color c0 = *scene.colorsOfVertices[t.vertices[0].colorId];
-	Color c1 = *scene.colorsOfVertices[t.vertices[1].colorId];
-	Color c2 = *scene.colorsOfVertices[t.vertices[2].colorId];
+	Color c0 = *scene.colorsOfVertices[t.vertices[0].colorId-1];
+	Color c1 = *scene.colorsOfVertices[t.vertices[1].colorId-1];
+	Color c2 = *scene.colorsOfVertices[t.vertices[2].colorId-1];
 
 	for (y = ymin; y <= ymax;y++) {
 		for (x = xmin; x <= xmax; x++) {
@@ -390,27 +404,29 @@ void CameraHandler::render(generated_line& l)
 	float y_diff = (l.vertices[1].y - l.vertices[0].y);
 	float slope;
 	if (x_diff == 0) slope = 2;
+	else if (y_diff == 0 && x_diff < 0) slope = -0.1;
+	else if (y_diff == 0 && x_diff > 0) slope = 0.1;
 	else slope = y_diff / x_diff;
-	if (slope > 1 || slope < -1) {
+	if (slope < 1 && slope > -1) {
 		if (slope > 0) {
 			y0 = l.vertices[0].y;
 			y1 = l.vertices[1].y;
 			x0 = l.vertices[0].x;
 			x1 = l.vertices[1].x;
-			c = *scene.colorsOfVertices[l.vertices[0].colorId];
-			dc.r = (scene.colorsOfVertices[l.vertices[1].colorId]->r - c.r )/ (x1 - x0);
-			dc.g = (scene.colorsOfVertices[l.vertices[1].colorId]->g - c.g )/ (x1 - x0);
-			dc.b = (scene.colorsOfVertices[l.vertices[1].colorId]->b - c.b )/ (x1 - x0);
+			c = *scene.colorsOfVertices[l.vertices[0].colorId-1];
+			dc.r = (scene.colorsOfVertices[l.vertices[1].colorId-1]->r - c.r )/ (x1 - x0);
+			dc.g = (scene.colorsOfVertices[l.vertices[1].colorId-1]->g - c.g )/ (x1 - x0);
+			dc.b = (scene.colorsOfVertices[l.vertices[1].colorId-1]->b - c.b )/ (x1 - x0);
 		}
 		else {
 			y0 = l.vertices[1].y;
 			y1 = l.vertices[0].y;
 			x0 = l.vertices[1].x;
 			x1 = l.vertices[0].x;
-			c = *scene.colorsOfVertices[l.vertices[1].colorId];
-			dc.r = (scene.colorsOfVertices[l.vertices[0].colorId]->r - c.r) / (x1 - x0);
-			dc.g = (scene.colorsOfVertices[l.vertices[0].colorId]->g - c.g) / (x1 - x0);
-			dc.b = (scene.colorsOfVertices[l.vertices[0].colorId]->b - c.b) / (x1 - x0);
+			c = *scene.colorsOfVertices[l.vertices[1].colorId-1];
+			dc.r = (scene.colorsOfVertices[l.vertices[0].colorId-1]->r - c.r) / (x1 - x0);
+			dc.g = (scene.colorsOfVertices[l.vertices[0].colorId-1]->g - c.g) / (x1 - x0);
+			dc.b = (scene.colorsOfVertices[l.vertices[0].colorId-1]->b - c.b) / (x1 - x0);
 		}
 		y = y0;
 		x = x0;
@@ -427,6 +443,7 @@ void CameraHandler::render(generated_line& l)
 			c.r += dc.r;
 			c.g += dc.g;
 			c.b += dc.b;
+			x++;
 		}
 	}
 	else {
@@ -435,20 +452,20 @@ void CameraHandler::render(generated_line& l)
 			y1 = l.vertices[1].y;
 			x0 = l.vertices[0].x;
 			x1 = l.vertices[1].x;
-			c = *scene.colorsOfVertices[l.vertices[0].colorId];
-			dc.r = (scene.colorsOfVertices[l.vertices[1].colorId]->r - c.r )/ (y1 - y0);
-			dc.g = (scene.colorsOfVertices[l.vertices[1].colorId]->g - c.g )/ (y1 - y0);
-			dc.b = (scene.colorsOfVertices[l.vertices[1].colorId]->b - c.b )/ (y1 - y0);
+			c = *scene.colorsOfVertices[l.vertices[0].colorId-1];
+			dc.r = (scene.colorsOfVertices[l.vertices[1].colorId-1]->r - c.r )/ (y1 - y0);
+			dc.g = (scene.colorsOfVertices[l.vertices[1].colorId-1]->g - c.g )/ (y1 - y0);
+			dc.b = (scene.colorsOfVertices[l.vertices[1].colorId-1]->b - c.b )/ (y1 - y0);
 		}
 		else {
 			y0 = l.vertices[1].y;
 			y1 = l.vertices[0].y;
 			x0 = l.vertices[1].x;
 			x1 = l.vertices[0].x;
-			c = *scene.colorsOfVertices[l.vertices[1].colorId];
-			dc.r = (scene.colorsOfVertices[l.vertices[0].colorId]->r - c.r) / (y1 - y0);
-			dc.g = (scene.colorsOfVertices[l.vertices[0].colorId]->g - c.g) / (y1 - y0);
-			dc.b = (scene.colorsOfVertices[l.vertices[0].colorId]->b - c.b) / (y1 - y0);
+			c = *scene.colorsOfVertices[l.vertices[1].colorId-1];
+			dc.r = (scene.colorsOfVertices[l.vertices[0].colorId-1]->r - c.r) / (y1 - y0);
+			dc.g = (scene.colorsOfVertices[l.vertices[0].colorId-1]->g - c.g) / (y1 - y0);
+			dc.b = (scene.colorsOfVertices[l.vertices[0].colorId-1]->b - c.b) / (y1 - y0);
 		}
 		y = y0;
 		x = x0;
@@ -465,6 +482,7 @@ void CameraHandler::render(generated_line& l)
 			c.r += dc.r;
 			c.g += dc.g;
 			c.b += dc.b;
+			y++;
 		}
 	}
 	
@@ -486,8 +504,12 @@ CameraHandler::CameraHandler(Camera& camera_, Scene& scene_):camera(camera_),sce
     generate_cameraTrans_matrix();
 	generate_orthographic_matrix();
 	generate_perspective_matrix();
-	this->viewingTrans = multiplyMatrixWithMatrix(this->orthographic, this->perspective);
-
+	if (camera.projectionType == 1) {
+		viewingTrans = perspective;
+	}
+	else {
+		viewingTrans = orthographic;
+	}
 }
 
 bool visible(float den, float num, float& te, float& tl)
