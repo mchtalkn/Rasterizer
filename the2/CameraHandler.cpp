@@ -76,7 +76,7 @@ void CameraHandler::generate_cameraTrans_matrix(){
     Vec3 &u = this->camera.u;
     Vec3 &v = this->camera.v;
     Vec3 &w = this->camera.w;
-    double val[4][4] = {{u.x, u.y, u.z ,  -(u.x*e.x+u.y*e.y+u.z*e.z)},{v.x ,  v.y , v.z , -(v.x*e.x+v.y*e.y+v.z*e.z)},{w.x ,  w.y ,  w.z , -(w.x*e.x+w.y*e.y+w.z*e.z)},{0, 0 , 0 , 1}};
+    double val[4][4] = {{u.x, u.y, u.z ,  -	1*(u.x*e.x+u.y*e.y+u.z*e.z)},{v.x ,  v.y , v.z , -1*(v.x*e.x+v.y*e.y+v.z*e.z)},{w.x ,  w.y ,  w.z , -1*(w.x*e.x+w.y*e.y+w.z*e.z)},{0, 0 , 0 , 1}};
     this-> cameraTrans = Matrix4(val);
 }
 
@@ -431,7 +431,7 @@ void CameraHandler::render(generated_triangle& t)
 			col.r = a * c0.r + b * c1.r + c * c2.r;
 			col.g = a * c0.g + b * c1.g + c * c2.g;
 			col.b = a * c0.b + b * c1.b + c * c2.b;
-			image[y][x] = col;
+			image[x][y] = col;
 		}
 	}
 
@@ -480,7 +480,7 @@ void CameraHandler::render(generated_line& l)
 		else slope_sign = -1;
 		d = 2 * (y0 - y1)*slope_sign + (x1 - x0);
 		while (x <= x1) {
-			image[y][x] = c;
+			image[x][y] = c;
 			if (d < 0) {
 				y +=  slope_sign;
 				d += 2 * ((y0 - y1)*slope_sign + (x1 - x0));
@@ -533,7 +533,7 @@ void CameraHandler::render(generated_line& l)
 		else slope_sign = -1;
 		d = 2 * (y0 - y1) * slope_sign + (x1 - x0);
 		while (y <= y1) {
-			image[y][x] = c;
+			image[x][y] = c;
 			if (d < 0) {
 				x += slope_sign;
 				d += 2 * ((x0 - x1)*slope_sign + (y1 - y0));
