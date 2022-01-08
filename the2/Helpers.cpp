@@ -207,9 +207,9 @@ Vec3 computeNormals(Vec4 vertices[3]){
     vertices[0].make_t_1();
     vertices[1].make_t_1();
     vertices[2].make_t_1();
-    Vec4 a(vertices[0]);
-    Vec4 b(vertices[1]);
-    Vec4 c(vertices[2]);
+    Vec4& a = vertices[0];
+    Vec4& b = vertices[1];
+    Vec4& c = vertices[2];
 
     Vec3 normal = crossProductVec3( (c-b).transferToVec3(), (a-b).transferToVec3());
     Vec3 res = normalizeVec3(normal);
