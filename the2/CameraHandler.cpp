@@ -91,26 +91,28 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
             m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(this->cameraTrans, m.generated_triangles[i].vertices[j]);
             // viewing transformation
             m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(this->viewingTrans, m.generated_triangles[i].vertices[j]);
-
         }
 	}
 	
 	if (m.original.type == 1) {
-		for (int j = 0; j < 3; j++) {
-			// clipping before perspective divide and viewport transformation.
-			//this->apply_clipping(m);
-			//perspective divide
-			m.generated_triangles[i].vertices[j].make_t_1();
-			// viewport transformation = t becomes 0, do not use it anymore.
-			m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(Matrix4(viewport), m.generated_triangles[i].vertices[j]);
-		}
+        for ( i=0; i< m.generated_triangles.size() ; i++) {
+            for (int j = 0; j < 3; j++) {
+                // clipping before perspective divide and viewport transformation.
+                //this->apply_clipping(m);
+                //perspective divide
+                m.generated_triangles[i].vertices[j].make_t_1();
+                // viewport transformation = t becomes 0, do not use it anymore.
+                m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(Matrix4(viewport),
+                                                                              m.generated_triangles[i].vertices[j]);
+            }
+        }
 	}
 	else {
 		m.set_lines();
 		// clipping before perspective divide and viewport transformation.
 		apply_clipping(m);
-		for (int i = 0; i < m.generated_lines.size(); i++) {
-			for (int j = 0; j < 2; j++) {
+		for ( i = 0; i < m.generated_lines.size(); i++) {
+			for ( j = 0; j < 2; j++) {
 				//perspective divide
 				m.generated_lines[i].vertices[j].make_t_1();
 				// viewport transformation = t becomes 0, do not use it anymore.
@@ -119,8 +121,6 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
 		}
 			
 	}
-	// computing normal also makes t's all 1 beforehand.
-	//m.generated_triangles[i].normal = computeNormals(m.generated_triangles[i].vertices);
 	return m;
 }
 
@@ -139,15 +139,13 @@ GeneratedMesh& CameraHandler::apply_culling(GeneratedMesh& m)
 
 bool CameraHandler::backface_culling(generated_triangle& t)
 {
-	
-	Vec4 a,b,c;
-	Vec3 n;
-	a = t.vertices[2] - t.vertices[1];
-	b = t.vertices[3] - t.vertices[1];
-	n.x = a.y * b.z - a.z * b.y;
-	n.y = a.z * b.x - a.x * b.z;
-	n.z = a.x * b.y - a.y * b.x;
-	return false;
+    t.normal = computeNormals(t.vertices);
+    double centerX = (t.vertices[0].x + t.vertices[1].x + t.vertices[2].x)/3;
+    double centerY = (t.vertices[0].y + t.vertices[1].y + t.vertices[2].y)/3;
+    double centerZ = (t.vertices[0].z + t.vertices[1].z + t.vertices[2].z)/3;
+    Vec3 &e = this->camera.pos;
+    Vec3 d = Vec3(centerX, centerY, centerZ , 0) - e;
+    return (dotProductVec3(d, t.normal) < 0);
 }
 
 GeneratedMesh& CameraHandler::apply_clipping(GeneratedMesh& m)
@@ -180,15 +178,16 @@ bool CameraHandler::apply_clipping(generated_line& l)
 	float tE = 0;
 	float tL = 1;
 	bool is_visible = false;
-	float dx = l.vertices[1].getElementAt(0) - l.vertices[0].getElementAt(0);
-	float dy = l.vertices[1].getElementAt(1) - l.vertices[0].getElementAt(1);
-	float dz = l.vertices[1].getElementAt(2) - l.vertices[0].getElementAt(2);
-	double& x0 = l.vertices[0].x;
-	double& y0 = l.vertices[0].y;
-	double& z0 = l.vertices[0].z;
-	double& x1 = l.vertices[1].x;
-	double& y1 = l.vertices[1].y;
-	double& z1 = l.vertices[1].z;
+	float dx = l.vertices[0].getElementAt(0) - l.vertices[1].getElementAt(0);
+	float dy = l.vertices[0].getElementAt(1) - l.vertices[1].getElementAt(1);
+	float dz = l.vertices[0].getElementAt(2) - l.vertices[1].getElementAt(2);
+	double x0 = l.vertices[0].x;
+	double y0 = l.vertices[0].y;
+	double z0 = l.vertices[0].z;
+	double x1 = l.vertices[1].x;
+	double y1 = l.vertices[1].y;
+	double z1 = l.vertices[1].z;
+
 	if (visible(dx, tmin - x0, tE, tL)) // left
 		if (visible(-dx, x0 - tmax, tE, tL)) // right
 			if (visible(dy, tmin - y0, tE, tL)) // bottom
@@ -197,15 +196,38 @@ bool CameraHandler::apply_clipping(generated_line& l)
 						if (visible(-dz, z0 - tmax, tE, tL)) // back
 						{
 							is_visible = true;
+                            double colorMultiplier=0.0;
+                            double V1_prev_r = scene.colorsOfVertices[l.vertices[1].colorId-1]->r;
+                            double V1_prev_g = scene.colorsOfVertices[l.vertices[1].colorId-1]->g;
+                            double V1_prev_b = scene.colorsOfVertices[l.vertices[1].colorId-1]->b;
+                            double V0_prev_r = scene.colorsOfVertices[l.vertices[0].colorId-1]->r;
+                            double V0_prev_g = scene.colorsOfVertices[l.vertices[0].colorId-1]->g;
+                            double V0_prev_b = scene.colorsOfVertices[l.vertices[0].colorId-1]->b;
 							if (tL < 1) {
-								x1 = x0 + dx * tL;
-								y1 = y0 + dy * tL;
-								z1 = z0 + dz * tL;
+                                l.vertices[1].x = x0 + dx * tL;
+                                l.vertices[1].y = y0 + dy * tL;
+                                l.vertices[1].z = z0 + dz * tL;
+                                if(x1 - x0!=0)  colorMultiplier= (l.vertices[1].x-x1)/(x1 - x0);
+                                else if(y1 - y0!=0)  colorMultiplier= (l.vertices[1].y-y1)/(y1 - y0);
+                                else if (z1 - z0!=0)  colorMultiplier= (l.vertices[1].z-z1)/(z1 - z0);
+                                scene.colorsOfVertices.push_back(new Color(V1_prev_r + (V1_prev_r-V0_prev_r) * colorMultiplier,
+                                                                            V1_prev_g + (V1_prev_g-V0_prev_g) * colorMultiplier,
+                                                                            V1_prev_b + (V1_prev_b-V0_prev_b) * colorMultiplier
+                                                                            ));
+                                l.vertices[1].colorId = scene.colorsOfVertices.size();
 							}if (tE > 0) {
-								x0 = x0 + dx * tE;
-								y0 = y0 + dy * tE;
-								z0 = z0 + dx * tE;
-							}
+                                l.vertices[0].x = x0 + dx * tE;
+                                l.vertices[0].y = y0 + dy * tE;
+                                l.vertices[0].z = z0 + dx * tE;
+                                if(x1 - x0!=0)  colorMultiplier= (l.vertices[0].x-x1)/(x1 - x0);
+                                else if(y1 - y0!=0)  colorMultiplier= (l.vertices[0].y-y1)/(y1 - y0);
+                                else if (z1 - z0!=0)  colorMultiplier= (l.vertices[0].z-z1)/(z1 - z0);
+                                scene.colorsOfVertices.push_back(new Color(V1_prev_r + (V1_prev_r-V0_prev_r) * colorMultiplier,
+                                                                           V1_prev_g + (V1_prev_g-V0_prev_g) * colorMultiplier,
+                                                                           V1_prev_b + (V1_prev_b-V0_prev_b) * colorMultiplier
+                                                                           ));
+                                l.vertices[0].colorId = scene.colorsOfVertices.size();
+                            }
 							return true;
 						}
 	return false; // TODO: not visible what to do set null,s add field etc ?
