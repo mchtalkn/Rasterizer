@@ -76,26 +76,28 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
             m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(this->cameraTrans, m.generated_triangles[i].vertices[j]);
             // viewing transformation
             m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(this->viewingTrans, m.generated_triangles[i].vertices[j]);
-
         }
 	}
 	
 	if (m.original.type == 1) {
-		for (int j = 0; j < 3; j++) {
-			// clipping before perspective divide and viewport transformation.
-			//this->apply_clipping(m);
-			//perspective divide
-			m.generated_triangles[i].vertices[j].make_t_1();
-			// viewport transformation = t becomes 0, do not use it anymore.
-			m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(Matrix4(viewport), m.generated_triangles[i].vertices[j]);
-		}
+        for ( i=0; i< m.generated_triangles.size() ; i++) {
+            for (int j = 0; j < 3; j++) {
+                // clipping before perspective divide and viewport transformation.
+                //this->apply_clipping(m);
+                //perspective divide
+                m.generated_triangles[i].vertices[j].make_t_1();
+                // viewport transformation = t becomes 0, do not use it anymore.
+                m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(Matrix4(viewport),
+                                                                              m.generated_triangles[i].vertices[j]);
+            }
+        }
 	}
 	else {
 		m.set_lines();
 		// clipping before perspective divide and viewport transformation.
 		apply_clipping(m);
-		for (int i = 0; i < m.generated_lines.size(); i++) {
-			for (int j = 0; j < 2; j++) {
+		for ( i = 0; i < m.generated_lines.size(); i++) {
+			for ( j = 0; j < 2; j++) {
 				//perspective divide
 				m.generated_lines[i].vertices[j].make_t_1();
 				// viewport transformation = t becomes 0, do not use it anymore.
@@ -104,8 +106,6 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
 		}
 			
 	}
-	// computing normal also makes t's all 1 beforehand.
-	//m.generated_triangles[i].normal = computeNormals(m.generated_triangles[i].vertices);
 	return m;
 }
 
