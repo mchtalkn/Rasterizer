@@ -76,7 +76,7 @@ void CameraHandler::generate_cameraTrans_matrix(){
     Vec3 &u = this->camera.u;
     Vec3 &v = this->camera.v;
     Vec3 &w = this->camera.w;
-    double val[4][4] = {{u.x, u.y, u.z ,  -(u.x*e.x+u.y*e.y+u.z*e.z)},{v.x ,  v.y , v.z , -(v.x*e.x+v.y*e.y+v.z*e.z)},{w.x ,  w.y ,  w.z , -(w.x*e.x+w.y*e.y+w.z*e.z)},{0, 0 , 0 , 1}};
+    double val[4][4] = {{u.x, u.y, u.z ,  -	1*(u.x*e.x+u.y*e.y+u.z*e.z)},{v.x ,  v.y , v.z , -1*(v.x*e.x+v.y*e.y+v.z*e.z)},{w.x ,  w.y ,  w.z , -1*(w.x*e.x+w.y*e.y+w.z*e.z)},{0, 0 , 0 , 1}};
     this-> cameraTrans = Matrix4(val);
 }
 

@@ -369,3 +369,5 @@ FodyWeavers.xsd
 /the2/culling_enabled_inputs
 /the2/culling_enabled_outputs
 /the2/different_projection_type
+*.ppm
+*.png
