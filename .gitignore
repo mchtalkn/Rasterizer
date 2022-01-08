@@ -371,3 +371,5 @@ FodyWeavers.xsd
 /the2/different_projection_type
 *.ppm
 *.png
+/the2/clipped_out.txt
+/the2/not_clipped_out.txt
