@@ -33,26 +33,26 @@ GeneratedMesh& CameraHandler::apply_modeling_transformation(GeneratedMesh& m)
     for(int i=0; i<m.original.numberOfTransformations; i++){
 		switch (m.original.transformationTypes[i]) {
 		case 't': {
-			Transformation tmp(*(scene.translations[m.original.transformationIds[i] - 1]));
-			tmp.apply(m);
+			//Transformation tmp(*(scene.translations[m.original.transformationIds[i] - 1]));
+			//tmp.apply(m);
 			t.concatenate(Transformation(*(scene.translations[m.original.transformationIds[i]-1])));
 			break;
 		}
 		case 's': {
-			Transformation tmp(*(scene.scalings[m.original.transformationIds[i] - 1]));
-			tmp.apply(m);
+			//Transformation tmp(*(scene.scalings[m.original.transformationIds[i] - 1]));
+			//tmp.apply(m);
 			t.concatenate(Transformation(*(scene.scalings[m.original.transformationIds[i] - 1])));
 			break;
 		}
 		case 'r': {
-			Transformation tmp(*(scene.rotations[m.original.transformationIds[i] - 1]));
-			tmp.apply(m);
+			//Transformation tmp(*(scene.rotations[m.original.transformationIds[i] - 1]));
+			//tmp.apply(m);
 			t.concatenate(Transformation(*(scene.rotations[m.original.transformationIds[i] - 1])));
 			break;
 		}
 		}
     }
-	//t.apply(m);
+	t.apply(m);
 	return m;
 }
 

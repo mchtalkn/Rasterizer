@@ -17,7 +17,7 @@ Transformation::Transformation(const Scaling& s)
 
 Transformation::Transformation(const Rotation& r)
 {
-    Vec3 u(r.ux, r.ux, r.uz, 0);
+    Vec3 u(r.ux, r.uy   , r.uz, 0);
     Vec3 v(0.0, 0.0, 0.0, 0);
     double smallest = min(min(ABS(r.ux), ABS(r.uy)), ABS(r.uz));
     if(smallest == ABS(r.ux)) { v.x=0.0; v.y = r.uz; v.z = -1*r.uy; }
