@@ -197,9 +197,11 @@ bool CameraHandler::apply_clipping(generated_line& l)
                                 if(x1 - x0!=0)  colorMultiplier= (l.vertices[1].x-x1)/(x1 - x0);
                                 else if(y1 - y0!=0)  colorMultiplier= (l.vertices[1].y-y1)/(y1 - y0);
                                 else if (z1 - z0!=0)  colorMultiplier= (l.vertices[1].z-z1)/(z1 - z0);
-                                scene.colorsOfVertices[l.vertices[1].colorId-1]->r = V1_prev_r + (V1_prev_r-V0_prev_r) * colorMultiplier;
-                                scene.colorsOfVertices[l.vertices[1].colorId-1]->g = V1_prev_g + (V1_prev_g-V0_prev_g) * colorMultiplier;
-                                scene.colorsOfVertices[l.vertices[1].colorId-1]->b = V1_prev_b + (V1_prev_b-V0_prev_b) * colorMultiplier;
+                                scene.colorsOfVertices.push_back(new Color(V1_prev_r + (V1_prev_r-V0_prev_r) * colorMultiplier,
+                                                                            V1_prev_g + (V1_prev_g-V0_prev_g) * colorMultiplier,
+                                                                            V1_prev_b + (V1_prev_b-V0_prev_b) * colorMultiplier
+                                                                            ));
+                                l.vertices[1].colorId = scene.colorsOfVertices.size();
 							}if (tE > 0) {
                                 l.vertices[0].x = x0 + dx * tE;
                                 l.vertices[0].y = y0 + dy * tE;
@@ -207,10 +209,12 @@ bool CameraHandler::apply_clipping(generated_line& l)
                                 if(x1 - x0!=0)  colorMultiplier= (l.vertices[0].x-x1)/(x1 - x0);
                                 else if(y1 - y0!=0)  colorMultiplier= (l.vertices[0].y-y1)/(y1 - y0);
                                 else if (z1 - z0!=0)  colorMultiplier= (l.vertices[0].z-z1)/(z1 - z0);
-                                scene.colorsOfVertices[l.vertices[0].colorId-1]->r = V1_prev_r + (V1_prev_r-V0_prev_r) * colorMultiplier;
-                                scene.colorsOfVertices[l.vertices[0].colorId-1]->g = V1_prev_g + (V1_prev_g-V0_prev_g) * colorMultiplier;
-                                scene.colorsOfVertices[l.vertices[0].colorId-1]->b = V1_prev_b + (V1_prev_b-V0_prev_b) * colorMultiplier;
-							}
+                                scene.colorsOfVertices.push_back(new Color(V1_prev_r + (V1_prev_r-V0_prev_r) * colorMultiplier,
+                                                                           V1_prev_g + (V1_prev_g-V0_prev_g) * colorMultiplier,
+                                                                           V1_prev_b + (V1_prev_b-V0_prev_b) * colorMultiplier
+                                                                           ));
+                                l.vertices[0].colorId = scene.colorsOfVertices.size();
+                            }
 							return true;
 						}
 	return false; // TODO: not visible what to do set null,s add field etc ?
