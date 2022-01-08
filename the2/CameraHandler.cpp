@@ -114,6 +114,7 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
         }
 	}
 	else {
+		apply_culling(m);
 		m.set_lines();
 		// clipping before perspective divide and viewport transformation.
 		apply_clipping(m);
@@ -138,6 +139,7 @@ GeneratedMesh& CameraHandler::apply_culling(GeneratedMesh& m)
 		if (!backface_culling(m.generated_triangles[i])) {
 			new_t.push_back(m.generated_triangles[i]);
 		}
+		i++;
 	}
 	m.generated_triangles = move(new_t);
 	return m;
@@ -531,7 +533,10 @@ void CameraHandler::render(generated_line& l)
 		bool flag = false;
 		if (x1 > x0) slope_sign = 1;
 		else slope_sign = -1;
-		d = 2 * (y0 - y1) * slope_sign + (x1 - x0);
+		if (l.vertices[0].colorId == 29) {
+			int bp = 0;
+		}
+		d = 2 * (x0 - x1) * slope_sign + (y1 - y0);
 		while (y <= y1) {
 			image[x][y] = c;
 			if (d < 0) {
