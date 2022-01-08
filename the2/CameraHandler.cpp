@@ -218,7 +218,7 @@ bool CameraHandler::apply_clipping(generated_line& l)
 							}if (tE > 0) {
                                 l.vertices[0].x = x0 + dx * tE;
                                 l.vertices[0].y = y0 + dy * tE;
-                                l.vertices[0].z = z0 + dx * tE;
+                                l.vertices[0].z = z0 + dz * tE;
                                 if(x1 - x0!=0)  colorMultiplier= (l.vertices[0].x-x1)/(x1 - x0);
                                 else if(y1 - y0!=0)  colorMultiplier= (l.vertices[0].y-y1)/(y1 - y0);
                                 else if (z1 - z0!=0)  colorMultiplier= (l.vertices[0].z-z1)/(z1 - z0);
@@ -469,7 +469,7 @@ void CameraHandler::render(generated_line& l)
 		y = y0;
 		x = x0;
 		bool flag = false;
-		bool equality_counter;
+		int equality_counter_max;
 		if (y1 > y0) slope_sign = 1;
 		else slope_sign = -1;
 		d = 2 * (y0 - y1)*slope_sign + (x1 - x0);
