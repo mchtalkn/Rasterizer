@@ -431,7 +431,7 @@ void CameraHandler::render(generated_triangle& t)
 			col.r = a * c0.r + b * c1.r + c * c2.r;
 			col.g = a * c0.g + b * c1.g + c * c2.g;
 			col.b = a * c0.b + b * c1.b + c * c2.b;
-			image[y][x] = col;
+			image[x][y] = col;
 		}
 	}
 
@@ -480,7 +480,7 @@ void CameraHandler::render(generated_line& l)
 		else slope_sign = -1;
 		d = 2 * (y0 - y1)*slope_sign + (x1 - x0);
 		while (x <= x1) {
-			image[y][x] = c;
+			image[x][y] = c;
 			if (d < 0) {
 				y +=  slope_sign;
 				d += 2 * ((y0 - y1)*slope_sign + (x1 - x0));
@@ -533,7 +533,7 @@ void CameraHandler::render(generated_line& l)
 		else slope_sign = -1;
 		d = 2 * (y0 - y1) * slope_sign + (x1 - x0);
 		while (y <= y1) {
-			image[y][x] = c;
+			image[x][y] = c;
 			if (d < 0) {
 				x += slope_sign;
 				d += 2 * ((x0 - x1)*slope_sign + (y1 - y0));
