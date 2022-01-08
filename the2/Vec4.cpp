@@ -68,7 +68,7 @@ Vec4 Vec4::operator-( Vec4& rhs)
     res.x = this->x - rhs.x;
     res.y = this->y - rhs.y;
     res.z = this->z - rhs.z;
-    res.t = 1;
+    if(this->t != rhs.t) cout << "T'S ARE NOT EQUAL IN VEC4 + OVERLOAD." << endl;
     res.colorId = 0;    // temp field.
     return res;
 }
@@ -81,7 +81,7 @@ Vec4 Vec4::operator+( Vec4& rhs)
     res.x = this->x + rhs.x;
     res.y = this->y + rhs.y;
     res.z = this->z + rhs.z;
-    res.t = 1;
+    if(this->t != rhs.t) cout << "T'S ARE NOT EQUAL IN VEC4 + OVERLOAD." << endl;
     res.colorId = 0;    // temp field.
     return res;
 }
@@ -93,7 +93,6 @@ Vec4 Vec4::operator*(const float rhs)
     res.x = this->x * rhs;
     res.y = this->y * rhs;
     res.z = this->z * rhs;
-    res.t = 1;
     res.colorId = 0;    // temp field.
     return res;
 }

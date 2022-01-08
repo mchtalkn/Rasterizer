@@ -18,6 +18,7 @@ public:
     
     friend std::ostream& operator<<(std::ostream& os, const Vec3& v);
     Vec3& operator=(const Vec3& v);
+    Vec3 operator-( Vec3& v);
 };
 
 #endif

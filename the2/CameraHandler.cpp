@@ -124,15 +124,13 @@ GeneratedMesh& CameraHandler::apply_culling(GeneratedMesh& m)
 
 bool CameraHandler::backface_culling(generated_triangle& t)
 {
-	
-	Vec4 a,b,c;
-	Vec3 n;
-	a = t.vertices[2] - t.vertices[1];
-	b = t.vertices[3] - t.vertices[1];
-	n.x = a.y * b.z - a.z * b.y;
-	n.y = a.z * b.x - a.x * b.z;
-	n.z = a.x * b.y - a.y * b.x;
-	return false;
+    t.normal = computeNormals(t.vertices);
+    double centerX = (t.vertices[0].x + t.vertices[1].x + t.vertices[2].x)/3;
+    double centerY = (t.vertices[0].y + t.vertices[1].y + t.vertices[2].y)/3;
+    double centerZ = (t.vertices[0].z + t.vertices[1].z + t.vertices[2].z)/3;
+    Vec3 &e = this->camera.pos;
+    Vec3 d = Vec3(centerX, centerY, centerZ , 0) - e;
+    return (dotProductVec3(d, t.normal) < 0);
 }
 
 GeneratedMesh& CameraHandler::apply_clipping(GeneratedMesh& m)
