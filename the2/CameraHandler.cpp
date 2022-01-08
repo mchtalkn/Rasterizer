@@ -408,7 +408,7 @@ void CameraHandler::render(generated_line& l)
 	else if (y_diff == 0 && x_diff > 0) slope = 0.1;
 	else slope = y_diff / x_diff;
 	if (slope < 1 && slope > -1) {
-		if (slope > 0) {
+		if (x_diff > 0) {
 			y0 = l.vertices[0].y;
 			y1 = l.vertices[1].y;
 			x0 = l.vertices[0].x;
@@ -447,7 +447,7 @@ void CameraHandler::render(generated_line& l)
 		}
 	}
 	else {
-		if (slope > 0) {
+		if (y_diff > 0) {
 			y0 = l.vertices[0].y;
 			y1 = l.vertices[1].y;
 			x0 = l.vertices[0].x;
