@@ -168,12 +168,13 @@ bool CameraHandler::apply_clipping(generated_line& l)
 	float dx = l.vertices[0].getElementAt(0) - l.vertices[1].getElementAt(0);
 	float dy = l.vertices[0].getElementAt(1) - l.vertices[1].getElementAt(1);
 	float dz = l.vertices[0].getElementAt(2) - l.vertices[1].getElementAt(2);
-	double& x0 = l.vertices[0].x;
-	double& y0 = l.vertices[0].y;
-	double& z0 = l.vertices[0].z;
-	double& x1 = l.vertices[1].x;
-	double& y1 = l.vertices[1].y;
-	double& z1 = l.vertices[1].z;
+	double x0 = l.vertices[0].x;
+	double y0 = l.vertices[0].y;
+	double z0 = l.vertices[0].z;
+	double x1 = l.vertices[1].x;
+	double y1 = l.vertices[1].y;
+	double z1 = l.vertices[1].z;
+
 	if (visible(dx, tmin - x0, tE, tL)) // left
 		if (visible(-dx, x0 - tmax, tE, tL)) // right
 			if (visible(dy, tmin - y0, tE, tL)) // bottom
@@ -182,14 +183,33 @@ bool CameraHandler::apply_clipping(generated_line& l)
 						if (visible(-dz, z0 - tmax, tE, tL)) // back
 						{
 							is_visible = true;
+                            double colorMultiplier=0.0;
+                            double V1_prev_r = scene.colorsOfVertices[l.vertices[1].colorId-1]->r;
+                            double V1_prev_g = scene.colorsOfVertices[l.vertices[1].colorId-1]->g;
+                            double V1_prev_b = scene.colorsOfVertices[l.vertices[1].colorId-1]->b;
+                            double V0_prev_r = scene.colorsOfVertices[l.vertices[0].colorId-1]->r;
+                            double V0_prev_g = scene.colorsOfVertices[l.vertices[0].colorId-1]->g;
+                            double V0_prev_b = scene.colorsOfVertices[l.vertices[0].colorId-1]->b;
 							if (tL < 1) {
-								x1 = x0 + dx * tL;
-								y1 = y0 + dy * tL;
-								z1 = z0 + dz * tL;
+                                l.vertices[1].x = x0 + dx * tL;
+                                l.vertices[1].y = y0 + dy * tL;
+                                l.vertices[1].z = z0 + dz * tL;
+                                if(x1 - x0!=0)  colorMultiplier= (l.vertices[1].x-x1)/(x1 - x0);
+                                else if(y1 - y0!=0)  colorMultiplier= (l.vertices[1].y-y1)/(y1 - y0);
+                                else if (z1 - z0!=0)  colorMultiplier= (l.vertices[1].z-z1)/(z1 - z0);
+                                scene.colorsOfVertices[l.vertices[1].colorId-1]->r = V1_prev_r + (V1_prev_r-V0_prev_r) * colorMultiplier;
+                                scene.colorsOfVertices[l.vertices[1].colorId-1]->g = V1_prev_g + (V1_prev_g-V0_prev_g) * colorMultiplier;
+                                scene.colorsOfVertices[l.vertices[1].colorId-1]->b = V1_prev_b + (V1_prev_b-V0_prev_b) * colorMultiplier;
 							}if (tE > 0) {
-								x0 = x0 + dx * tE;
-								y0 = y0 + dy * tE;
-								z0 = z0 + dx * tE;
+                                l.vertices[0].x = x0 + dx * tE;
+                                l.vertices[0].y = y0 + dy * tE;
+                                l.vertices[0].z = z0 + dx * tE;
+                                if(x1 - x0!=0)  colorMultiplier= (l.vertices[0].x-x1)/(x1 - x0);
+                                else if(y1 - y0!=0)  colorMultiplier= (l.vertices[0].y-y1)/(y1 - y0);
+                                else if (z1 - z0!=0)  colorMultiplier= (l.vertices[0].z-z1)/(z1 - z0);
+                                scene.colorsOfVertices[l.vertices[0].colorId-1]->r = V1_prev_r + (V1_prev_r-V0_prev_r) * colorMultiplier;
+                                scene.colorsOfVertices[l.vertices[0].colorId-1]->g = V1_prev_g + (V1_prev_g-V0_prev_g) * colorMultiplier;
+                                scene.colorsOfVertices[l.vertices[0].colorId-1]->b = V1_prev_b + (V1_prev_b-V0_prev_b) * colorMultiplier;
 							}
 							return true;
 						}
