@@ -165,9 +165,9 @@ bool CameraHandler::apply_clipping(generated_line& l)
 	float tE = 0;
 	float tL = 1;
 	bool is_visible = false;
-	float dx = l.vertices[0].getElementAt(0) - l.vertices[1].getElementAt(0);
-	float dy = l.vertices[0].getElementAt(1) - l.vertices[1].getElementAt(1);
-	float dz = l.vertices[0].getElementAt(2) - l.vertices[1].getElementAt(2);
+	float dx = l.vertices[1].getElementAt(0) - l.vertices[0].getElementAt(0);
+	float dy = l.vertices[1].getElementAt(1) - l.vertices[0].getElementAt(1);
+	float dz = l.vertices[1].getElementAt(2) - l.vertices[0].getElementAt(2);
 	double& x0 = l.vertices[0].x;
 	double& y0 = l.vertices[0].y;
 	double& z0 = l.vertices[0].z;
