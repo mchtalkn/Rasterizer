@@ -114,6 +114,7 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
         }
 	}
 	else {
+		apply_culling(m);
 		m.set_lines();
 		// clipping before perspective divide and viewport transformation.
 		apply_clipping(m);
@@ -138,6 +139,7 @@ GeneratedMesh& CameraHandler::apply_culling(GeneratedMesh& m)
 		if (!backface_culling(m.generated_triangles[i])) {
 			new_t.push_back(m.generated_triangles[i]);
 		}
+		i++;
 	}
 	m.generated_triangles = move(new_t);
 	return m;
