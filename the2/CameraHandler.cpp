@@ -33,20 +33,26 @@ GeneratedMesh& CameraHandler::apply_modeling_transformation(GeneratedMesh& m)
     for(int i=0; i<m.original.numberOfTransformations; i++){
 		switch (m.original.transformationTypes[i]) {
 		case 't': {
+			Transformation tmp(*(scene.translations[m.original.transformationIds[i] - 1]));
+			tmp.apply(m);
 			t.concatenate(Transformation(*(scene.translations[m.original.transformationIds[i]-1])));
 			break;
 		}
 		case 's': {
+			Transformation tmp(*(scene.scalings[m.original.transformationIds[i] - 1]));
+			tmp.apply(m);
 			t.concatenate(Transformation(*(scene.scalings[m.original.transformationIds[i] - 1])));
 			break;
 		}
 		case 'r': {
+			Transformation tmp(*(scene.rotations[m.original.transformationIds[i] - 1]));
+			tmp.apply(m);
 			t.concatenate(Transformation(*(scene.rotations[m.original.transformationIds[i] - 1])));
 			break;
 		}
 		}
     }
-	t.apply(m);
+	//t.apply(m);
 	return m;
 }
 
@@ -178,9 +184,9 @@ bool CameraHandler::apply_clipping(generated_line& l)
 	float tE = 0;
 	float tL = 1;
 	bool is_visible = false;
-	float dx = l.vertices[0].getElementAt(0) - l.vertices[1].getElementAt(0);
-	float dy = l.vertices[0].getElementAt(1) - l.vertices[1].getElementAt(1);
-	float dz = l.vertices[0].getElementAt(2) - l.vertices[1].getElementAt(2);
+	float dx = l.vertices[1].getElementAt(0) - l.vertices[0].getElementAt(0);
+	float dy = l.vertices[1].getElementAt(1) - l.vertices[0].getElementAt(1);
+	float dz = l.vertices[1].getElementAt(2) - l.vertices[0].getElementAt(2);
 	double x0 = l.vertices[0].x;
 	double y0 = l.vertices[0].y;
 	double z0 = l.vertices[0].z;
@@ -477,15 +483,15 @@ void CameraHandler::render(generated_line& l)
 			image[y][x] = c;
 			if (d < 0) {
 				y +=  slope_sign;
-				d += 2 * (y0 - y1) + (x1 - x0);
+				d += 2 * ((y0 - y1)*slope_sign + (x1 - x0));
 			}
-			else if(d>0){
+			else if(d>=0){
 				d += 2 * (y0 - y1)*slope_sign;
 			}
 			else {
 				if (flag) {
 					y += slope_sign;
-					d += 2 * (y0 - y1) + (x1 - x0);
+					d += 2 * ((y0 - y1) + (x1 - x0));
 				}
 				else {
 					d += 2 * (y0 - y1) * slope_sign;
@@ -522,17 +528,27 @@ void CameraHandler::render(generated_line& l)
 		}
 		y = y0;
 		x = x0;
-		d = 2 * (x0 - x1) + (y1 - y0);
+		bool flag = false;
 		if (x1 > x0) slope_sign = 1;
 		else slope_sign = -1;
+		d = 2 * (y0 - y1) * slope_sign + (x1 - x0);
 		while (y <= y1) {
 			image[y][x] = c;
 			if (d < 0) {
 				x += slope_sign;
-				d += 2 * (x0 - x1) + (y1 - y0);
+				d += 2 * ((x0 - x1)*slope_sign + (y1 - y0));
+			}
+			else if(d>=0) {
+				d += 2 * (x0 - x1)*slope_sign;
 			}
 			else {
-				d += 2 * (x0 - x1)*slope_sign;
+				if (flag) {
+					x += slope_sign;
+					d += 2 * (x0 - x1) + (y1 - y0);
+				}
+				else {
+					d += 2 * (x0 - x1) * slope_sign;
+				}
 			}
 			c.r += dc.r;
 			c.g += dc.g;
