@@ -96,7 +96,7 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
 	}
 	
 	if (m.original.type == 1) {
-		apply_culling(m);
+		if(scene.cullingEnabled) apply_culling(m);
         for ( i=0; i< m.generated_triangles.size() ; i++) {
             for ( j = 0; j < 3; j++) {
                 m.generated_triangles[i].vertices[j].make_t_1();
@@ -107,7 +107,7 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
         }
 	}
 	else {
-		apply_culling(m);
+        if(scene.cullingEnabled) apply_culling(m);
 		m.set_lines();
 		// clipping before perspective divide and viewport transformation.
 		apply_clipping(m);
