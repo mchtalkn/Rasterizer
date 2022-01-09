@@ -86,11 +86,6 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
     double viewport[4][4] = {{nx/2, 0, 0, (nx-1)/2},{ 0, ny/2, 0, (ny-1)/2},
                              { 0,0, 1/2, 1/2}, {0,0,0,0}};
 
-    //generate_cameraTrans_matrix();
-    //generate_orthographic_matrix();
-    //generate_perspective_matrix();
-
-	// viewingTrans for solid or wireframe ==> viewport * orthographic * perspective
 	for ( i=0; i< m.generated_triangles.size() ; i++){
 	    for ( j=0 ; j<3; j++){
             // camera transformation
@@ -103,10 +98,7 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
 	if (m.original.type == 1) {
 		apply_culling(m);
         for ( i=0; i< m.generated_triangles.size() ; i++) {
-            for (int j = 0; j < 3; j++) {
-                // clipping before perspective divide and viewport transformation.
-                //this->apply_clipping(m);
-                //perspective divide
+            for ( j = 0; j < 3; j++) {
                 m.generated_triangles[i].vertices[j].make_t_1();
                 // viewport transformation = t becomes 0, do not use it anymore.
                 m.generated_triangles[i].vertices[j] = multiplyMatrixWithVec4(Matrix4(viewport),
@@ -127,7 +119,6 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
 				m.generated_lines[i].vertices[j] = multiplyMatrixWithVec4(Matrix4(viewport), m.generated_lines[i].vertices[j]);
 			}
 		}
-			
 	}
 	return m;
 }
@@ -140,10 +131,6 @@ GeneratedMesh& CameraHandler::apply_culling(GeneratedMesh& m)
 		if (!backface_culling(m.generated_triangles[i])) {
 			new_t.push_back(m.generated_triangles[i]);
 		}
-		else {
-			cout << "culled face: " << i << endl;
-		}
-		
 		i++;
 	}
 	m.generated_triangles = move(new_t);
@@ -157,8 +144,8 @@ bool CameraHandler::backface_culling(generated_triangle& t)
     double centerY = (t.vertices[0].y + t.vertices[1].y + t.vertices[2].y)/3;
     double centerZ = (t.vertices[0].z + t.vertices[1].z + t.vertices[2].z)/3;
     Vec3 &e = this->camera.pos;
-    Vec3 d = Vec3(centerX, centerY, centerZ , 0) - e;
-    return (dotProductVec3(d, t.normal) < 0);
+    Vec3 d = Vec3(0,0,-1,0);
+    return (dotProductVec3(d, t.normal) > 0);
 }
 
 GeneratedMesh& CameraHandler::apply_clipping(GeneratedMesh& m)
@@ -384,9 +371,6 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 
 void CameraHandler::render()
 {
-	generate_cameraTrans_matrix();
-	generate_orthographic_matrix();
-	generate_perspective_matrix();
 	for (Mesh* mesh : scene.meshes) {
 		GeneratedMesh m(*mesh, scene);
 		apply_modeling_transformation(m);
@@ -441,8 +425,6 @@ void CameraHandler::render(generated_triangle& t)
 			image[x][y] = col;
 		}
 	}
-
-
 }
 
 void CameraHandler::render(generated_line& l)
