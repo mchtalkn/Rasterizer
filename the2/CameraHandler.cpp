@@ -101,6 +101,7 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
 	}
 	
 	if (m.original.type == 1) {
+		apply_culling(m);
         for ( i=0; i< m.generated_triangles.size() ; i++) {
             for (int j = 0; j < 3; j++) {
                 // clipping before perspective divide and viewport transformation.
@@ -121,7 +122,7 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
 		for ( i = 0; i < m.generated_lines.size(); i++) {
 			for ( j = 0; j < 2; j++) {
 				//perspective divide
-				m.generated_lines[i].vertices[j].make_t_1();
+				m.generated_lines[i].vertices[j].make_t_1();	
 				// viewport transformation = t becomes 0, do not use it anymore.
 				m.generated_lines[i].vertices[j] = multiplyMatrixWithVec4(Matrix4(viewport), m.generated_lines[i].vertices[j]);
 			}
@@ -139,6 +140,10 @@ GeneratedMesh& CameraHandler::apply_culling(GeneratedMesh& m)
 		if (!backface_culling(m.generated_triangles[i])) {
 			new_t.push_back(m.generated_triangles[i]);
 		}
+		else {
+			cout << "culled face: " << i << endl;
+		}
+		
 		i++;
 	}
 	m.generated_triangles = move(new_t);
