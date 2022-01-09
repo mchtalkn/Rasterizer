@@ -39,7 +39,7 @@ public:
 	CameraHandler(Camera& camera, Scene& scene);
 	//TODO: transformation functions, concatanetion of transformations
 };
-bool visible(float den, float num, float& te, float& tl);
+bool visible(double den, double num, double& te, double& tl);
 
 
 

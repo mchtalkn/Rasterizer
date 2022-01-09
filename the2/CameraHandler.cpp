@@ -76,7 +76,7 @@ void CameraHandler::generate_cameraTrans_matrix(){
     Vec3 &u = this->camera.u;
     Vec3 &v = this->camera.v;
     Vec3 &w = this->camera.w;
-    double val[4][4] = {{u.x, u.y, u.z ,  -	1*(u.x*e.x+u.y*e.y+u.z*e.z)},{v.x ,  v.y , v.z , -1*(v.x*e.x+v.y*e.y+v.z*e.z)},{w.x ,  w.y ,  w.z , -1*(w.x*e.x+w.y*e.y+w.z*e.z)},{0, 0 , 0 , 1}};
+    double val[4][4] = {{u.x, u.y, u.z ,  -1*(u.x*e.x+u.y*e.y+u.z*e.z)},{v.x ,  v.y , v.z , -1*(v.x*e.x+v.y*e.y+v.z*e.z)},{w.x ,  w.y ,  w.z , -1*(w.x*e.x+w.y*e.y+w.z*e.z)},{0, 0 , 0 , 1}};
     this-> cameraTrans = Matrix4(val);
 }
 
@@ -84,7 +84,7 @@ GeneratedMesh& CameraHandler::apply_viewing_transformations(GeneratedMesh& m)
 {
     int i,j;
     double viewport[4][4] = {{nx/2, 0, 0, (nx-1)/2},{ 0, ny/2, 0, (ny-1)/2},
-                             { 0,0, 1/2, 1/2}, {0,0,0,0}};
+                             { 0,0, 0.5, 0.5}, {0,0,0,0}};
 
 	for ( i=0; i< m.generated_triangles.size() ; i++){
 	    for ( j=0 ; j<3; j++){
@@ -173,14 +173,14 @@ bool CameraHandler::apply_clipping(generated_line& l)
 {
 	l.vertices[0].make_t_1(); // TODO these should not be there but added for testing
 	l.vertices[1].make_t_1();
-	float tmax = l.vertices[0].t;
-	float tmin = -1 * l.vertices[0].t;
-	float tE = 0;
-	float tL = 1;
+	double tmax = l.vertices[0].t;
+	double tmin = -1 * l.vertices[0].t;
+	double tE = 0;
+	double tL = 1;
 	bool is_visible = false;
-	float dx = l.vertices[1].getElementAt(0) - l.vertices[0].getElementAt(0);
-	float dy = l.vertices[1].getElementAt(1) - l.vertices[0].getElementAt(1);
-	float dz = l.vertices[1].getElementAt(2) - l.vertices[0].getElementAt(2);
+	double dx = l.vertices[1].getElementAt(0) - l.vertices[0].getElementAt(0);
+	double dy = l.vertices[1].getElementAt(1) - l.vertices[0].getElementAt(1);
+	double dz = l.vertices[1].getElementAt(2) - l.vertices[0].getElementAt(2);
 	double x0 = l.vertices[0].x;
 	double y0 = l.vertices[0].y;
 	double z0 = l.vertices[0].z;
@@ -239,8 +239,8 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 	old_v.push_back(m.vertices[0]);
 	old_v.push_back(m.vertices[1]);
 	old_v.push_back(m.vertices[2]);
-	float tmax = m.vertices[0].t;
-	float tmin = -1 * m.vertices[0].t;
+	double tmax = m.vertices[0].t;
+	double tmin = -1 * m.vertices[0].t;
 	for (int axis = 0; axis < 3; axis++) {
 		for (int i = 0; i < old_v.size() - 1; i++) {
 			if (old_v[i].getElementAt(axis) <= tmax) {
@@ -249,7 +249,7 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 				}
 				else if (old_v[i + 1].getElementAt(axis) > tmax) {
 					Vec4 slope = old_v[i + 1] - old_v[i];
-					float diff = tmax - old_v[i].getElementAt(axis);
+					double diff = tmax - old_v[i].getElementAt(axis);
 
                     Vec4 temp = slope * diff;
 					Vec4 vip = old_v[i] + temp;
@@ -262,7 +262,7 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 				}
 				else {
 					Vec4 slope = old_v[i + 1] - old_v[i];
-					float diff = tmax - old_v[i].getElementAt(axis);
+					double diff = tmax - old_v[i].getElementAt(axis);
 
                     Vec4 temp = slope * diff;
 					Vec4 vip = old_v[i] + temp;
@@ -278,7 +278,7 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 			}
 			else if (old_v[i + 1].getElementAt(axis) > tmax) {
 				Vec4 slope = old_v[0] - old_v[i];
-				float diff = tmax - old_v[i].getElementAt(axis);
+				double diff = tmax - old_v[i].getElementAt(axis);
 
                 Vec4 temp = slope * diff;
 				Vec4 vip = old_v[i] + temp;
@@ -291,7 +291,7 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 			}
 			else {
 				Vec4 slope = old_v[0] - old_v[i];
-				float diff = tmax - old_v[i].getElementAt(axis);
+				double diff = tmax - old_v[i].getElementAt(axis);
 
                 Vec4 temp = slope * diff;
 				Vec4 vip = old_v[i] + temp;
@@ -309,7 +309,7 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 				}
 				else if (old_v[i + 1].getElementAt(axis) < tmin) {
 					Vec4 slope = old_v[i + 1] - old_v[i];
-					float diff = tmin - old_v[i].getElementAt(axis);
+                    double diff = tmin - old_v[i].getElementAt(axis);
 
                     Vec4 temp = slope * diff;
 					Vec4 vip = old_v[i] + temp;
@@ -322,7 +322,7 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 				}
 				else {
 					Vec4 slope = old_v[i + 1] - old_v[i];
-					float diff = tmin - old_v[i].getElementAt(axis);
+                    double diff = tmin - old_v[i].getElementAt(axis);
 
                     Vec4 temp = slope * diff;
 					Vec4 vip = old_v[i] + temp;
@@ -338,7 +338,7 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 			}
 			else if (old_v[i + 1].getElementAt(axis) < tmin) {
 				Vec4 slope = old_v[0] - old_v[i];
-				float diff = tmin - old_v[i].getElementAt(axis);
+                double diff = tmin - old_v[i].getElementAt(axis);
 
                 Vec4 temp = slope * diff;
 				Vec4 vip = old_v[i] + temp;
@@ -351,7 +351,7 @@ vector<generated_triangle> CameraHandler::apply_clipping(generated_triangle& m)
 			}
 			else {
 				Vec4 slope = old_v[0] - old_v[i];
-				float diff = tmin - old_v[i].getElementAt(axis);
+                double diff = tmin - old_v[i].getElementAt(axis);
 
                 Vec4 temp = slope * diff;
 				Vec4 vip = old_v[i] + temp;
@@ -399,8 +399,8 @@ void CameraHandler::render(generated_triangle& t)
 	ymin = min(min(int(t.vertices[0].y), int(t.vertices[1].y)), int(t.vertices[2].y));
 	xmax = max(max(int(t.vertices[0].x), int(t.vertices[1].x)), int(t.vertices[2].x));
 	ymax = max(max(int(t.vertices[0].y), int(t.vertices[1].y)), int(t.vertices[2].y));
-	float f01, f12, f20, a, b, c;
-	auto f = [](const float x, const float y, const float x0, const float y0, const float x1, const float y1) {
+    double f01, f12, f20, a, b, c;
+	auto f = [](const double x, const double y, const double x0, const double y0, const double x1, const double y1) {
 		return x*(y0-y1)+y*(x1-x0)+x0*y1-y0*x1;
 	};
 	f01 = f(t.vertices[2].x, t.vertices[2].y, t.vertices[0].x, t.vertices[0].y, t.vertices[1].x, t.vertices[1].y);
@@ -432,9 +432,9 @@ void CameraHandler::render(generated_line& l)
 	int x, y,x0,y0,x1,y1,d;
 	Color c;
 	Color dc;
-	float x_diff = (l.vertices[1].x - l.vertices[0].x);
-	float y_diff = (l.vertices[1].y - l.vertices[0].y);
-	float slope;
+	double x_diff = (l.vertices[1].x - l.vertices[0].x);
+	double y_diff = (l.vertices[1].y - l.vertices[0].y);
+	double slope;
 	if (x_diff == 0) slope = 2;
 	else if (y_diff == 0 && x_diff < 0) slope = -0.1;
 	else if (y_diff == 0 && x_diff > 0) slope = 0.1;
@@ -576,9 +576,9 @@ CameraHandler::CameraHandler(Camera& camera_, Scene& scene_):camera(camera_),sce
 	}
 }
 
-bool visible(float den, float num, float& te, float& tl)
+bool visible(double den, double num, double& te, double& tl)
 {
-	float t;
+	double t;
 	if (den > 0) {
 		t = num / den;
 		if (t > tl) return false;
